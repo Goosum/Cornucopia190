@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Cornucopia</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        .card {
+            border: none; 
+            background-color: #e0f7da; 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        }
+
+        .product-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .btn-success {
+            background-color: #66bb6a; 
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .row {
+            gap: 20px;
+        }
+    </style>
+
+    <script>
+        function addToCart(productId) {
+            fetch('/add_to_cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => response.json())
+            .then(data => updateCartCounter(data.total_items))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function updateCartCounter(totalItems) {
+            const cartCounter = document.getElementById('cart-counter');
+            cartCounter.textContent = totalItems;
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const products = document.querySelectorAll('.product');
+            products.forEach(product => {
+                const productName = product.querySelector('.product-name').textContent.toLowerCase();
+                product.style.display = productName.includes(query) ? 'block' : 'none';
+            });
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm bg-primary sticky-top rounded m-3" data-bs-theme="dark">
+        <div class="container-xxl d-flex align-items-center">
+            <div class="logo-container d-flex align-items-center">
+                <a href="{{ url_for('home') }}">
+                    <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" 
+                         style="width: 65px; height: 65px; margin-right: 10px;">
+                </a>
+                <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;">
+                    Cornucopia
+                </span>
+            </div>
+
+            <div class="navbar-nav">
+                <a class="nav-link text-light" href="#">Home</a>
+                <a class="nav-link text-light" href="#">Browse</a>
+            </div>
+
+            <form class="d-flex ms-auto" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" id="search-input" oninput="filterProducts()">
+                <button class="btn btn-dark" type="submit">Search</button>
+            </form>
+
+            <a href="{{ url_for('profile') }}" class="ms-3 text-light">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+                <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
+            </a>
+        </div>
+    </nav>
+
+    <div class="container text-center mt-5">
+        <h1 class="display-4">Products</h1>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            {% for product in products %}
+            <div class="col-md-4">
+                <div class="card">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-price">Price: ${{ product.price }}</p>
+                    <button class="btn btn-success" onclick="addToCart({{ product.id }})">Add to Cart</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>
