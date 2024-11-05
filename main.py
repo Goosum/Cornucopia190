@@ -14,7 +14,7 @@ import kroger
 app = Flask(__name__) 
 app.secret_key = 'supersecretkey'
 
-
+#test
 # Fake products to test
 #products = [
 #    {"id": 1, "name": "Apples", "price": 1.2},
