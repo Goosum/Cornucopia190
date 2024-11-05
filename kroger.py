@@ -15,6 +15,10 @@ def get_auth_token():
 def get_hot_products(auth_token):
     filter = {"filter.term": "Kroger", "filter.limit": "5"}
     return get_products(filter, auth_token)
+    
+def search_product(term, auth_token):
+    filter = {"filter.term": term, "filter.limit": "5"}
+    return get_products(filter, auth_token)
 
 
 def get_products(filter, auth_token):
