@@ -10,22 +10,27 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <style>
-        .card {
-            border: none; 
-            background-color: #e0f7da; 
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            border-radius: 10px; 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        /* General Styles */
+        body {
+            background-color: #ffffff; /* White background */
+            color: #2e7d32; /* Dark green text */
+            font-family: Arial, sans-serif;
         }
 
-        .product-name {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
+        /* Navbar */
+        .navbar {
+            background-color: #4a5b2a; /* Olive green */
+        }
+
+        .navbar .nav-link {
+            color: #ffffff !important;
+        }
+
+        /* Search and Filter */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 		
 		.product-image {
@@ -33,22 +38,68 @@
 			max-width:100%; 
 		}
 
-        .product-price {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 15px;
+        .search-container input[type="search"] {
+            width: 250px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #4a5b2a;
         }
 
+        .search-container .filter-dropdown {
+            background-color: #66bb6a; /* Light green for dropdown */
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Dropdown Styles */
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #4a5b2a;
+            background-color: #ffffff;
+        }
+
+        .dropdown-item {
+            color: #2e7d32;
+        }
+
+        /* Product Cards */
+        .card {
+            border: 1px solid #4a5b2a;
+            background-color: #e8f5e9;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #4a5b2a;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-top: 2px solid #2e7d32;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        /* Button Styling */
         .btn-success {
-            background-color: #66bb6a; 
+            background-color: #66bb6a;
             border: none;
             padding: 10px 20px;
             font-size: 16px;
             border-radius: 5px;
-        }
-
-        .row {
-            gap: 20px;
         }
     </style>
 
@@ -71,16 +122,22 @@
 
         function filterProducts() {
             const query = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('filter-dropdown').value.toLowerCase();
             const products = document.querySelectorAll('.product');
+
             products.forEach(product => {
                 const productName = product.querySelector('.product-name').textContent.toLowerCase();
-                product.style.display = productName.includes(query) ? 'block' : 'none';
+                const productCategory = product.getAttribute('data-category').toLowerCase();
+                
+                // Display products that match the search query and selected category
+                product.style.display = (productName.includes(query) && (selectedCategory === 'all' || productCategory === selectedCategory)) ? 'block' : 'none';
             });
         }
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm bg-primary sticky-top rounded m-3" data-bs-theme="dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
         <div class="container-xxl d-flex align-items-center">
             <div class="logo-container d-flex align-items-center">
                 <a href="{{ url_for('home') }}">
@@ -93,15 +150,28 @@
             </div>
 
             <div class="navbar-nav">
-                <a class="nav-link text-light" href="#">Home</a>
-                <a class="nav-link text-light" href="#">Browse</a>
+                <a class="nav-link" href="#">Home</a>
+                <a class="nav-link" href="#">Browse</a>
             </div>
 
-            <form class="d-flex ms-auto" role="search">
+            <!-- Search and Filter Section -->
+            <form class="d-flex ms-auto search-container" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" id="search-input" oninput="filterProducts()">
+                
+                <!-- Filter Dropdown -->
+                <select class="filter-dropdown" id="filter-dropdown" onchange="filterProducts()">
+                    <option value="all">All Categories</option>
+                    <option value="fruits">Fruits & Vegetables</option>
+                    <option value="dairy">Dairy & Eggs</option>
+                    <option value="meat">Meat & Seafood</option>
+                    <option value="beverages">Beverages</option>
+                    <option value="snacks">Snacks</option>
+                </select>
+                
                 <button class="btn btn-dark" type="submit">Search</button>
             </form>
 
+            <!-- Profile and Cart Links -->
             <a href="{{ url_for('profile') }}" class="ms-3 text-light">
                 <i class="fas fa-user"></i> Profile
             </a>
@@ -111,14 +181,15 @@
         </div>
     </nav>
 
-    <div class="container text-center mt-5">
-        <h1 class="display-4">Products</h1>
-    </div>
-
+    <!-- Main Content Area -->
     <div class="container mt-4">
-        <div class="row justify-content-center">
+        <div class="text-center">
+            <h1 class="display-4">Products</h1>
+        </div>
+
+        <div class="row justify-content-center mt-4">
             {% for product in products %}
-            <div class="col-md-4">
+            <div class="col-md-4 product" data-category="{{ product.category }}">
                 <div class="card">
 				    <img class="product-image" src="{{ product.image }}">
                     <h3 class="product-name">{{ product.name }}</h3>
@@ -129,6 +200,16 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="mt-5">
+        <p>&copy; 2024 Cornucopia. All Rights Reserved.</p>
+        <p>
+            <a href="#" style="color: #ffffff;">Privacy Policy</a> | 
+            <a href="#" style="color: #ffffff;">Terms of Service</a> | 
+            <a href="#" style="color: #ffffff;">Contact Us</a>
+        </p>
+    </footer>
 
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
