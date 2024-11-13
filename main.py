@@ -59,15 +59,13 @@ def clear_cart():
     session['cart_total'] = 0
     return redirect(url_for('home'))
  
-
 @app.route("/login.html", methods = ['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html', header="Log In", redirect="login.html", otherurl="register.html", otherpage="Register an Account")
     elif  request.method == 'POST':
         data = request.form
-        
-        
+               
         conn = dbconnect()
         cur = conn.cursor()
         
@@ -88,7 +86,15 @@ def login():
                 return "wrong credentials"
         else:
             return "user does not exist"
-        
+
+@app.route('/logout')
+def logout():
+    # clear the session data
+    session.pop('username', None)
+
+    # redirect to the login page
+    return redirect("home.html")
+
 @app.route("/register.html", methods = ['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -110,7 +116,7 @@ def register():
         salt = bcrypt.gensalt()
         salttxt = salt.decode("utf-8")
         
-        # Hashing the password 
+        # hashing the password 
         hashed = bcrypt.hashpw(bytes, salt).decode("utf-8")
         
         query = f"INSERT INTO accounts VALUES('{username}','{hashed}', '{salttxt}')"

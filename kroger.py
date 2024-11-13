@@ -20,14 +20,12 @@ def search_product(term, auth_token):
     filter = {"filter.term": term, "filter.limit": "5"}
     return get_products(filter, auth_token)
 
-
 def get_products(filter, auth_token):
     products_url = "https://api.kroger.com/v1/products"
     bearer = "Bearer " + auth_token
     headers = {"Authorization": bearer}
     x = requests.get(products_url, headers = headers, params = filter)
     return filter_json(x.json())
-
 
 def filter_json(json):
     products = []
