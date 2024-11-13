@@ -173,7 +173,7 @@
 
             <!-- Profile and Cart Links -->
             <a href="{{ url_for('profile') }}" class="ms-3 text-light">
-                <i class="fas fa-user"></i> Profile
+                <i class="fas fa-user"></i> Welcome, {{ username }}
             </a>
             <a href="{{ url_for('cart') }}" class="ms-3 text-light">
                 <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
