@@ -13,11 +13,11 @@ def get_auth_token():
     return x.json()["access_token"]
 
 def get_hot_products(auth_token):
-    filter = {"filter.term": "Kroger", "filter.limit": "5"}
+    filter = {"filter.term": "Kroger", "filter.limit": "5", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
     
-def search_product(term, auth_token):
-    filter = {"filter.term": term, "filter.limit": "5"}
+def search_product(term, auth_token):  #todo change location later
+    filter = {"filter.term": term, "filter.limit": "5", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
 
 
@@ -37,7 +37,9 @@ def filter_json(json):
         newprod["name"] = prod["description"]
         newprod["image"] = prod["images"][1]["sizes"][1]["url"]
         newprod["id"] = id
-        newprod["price"] = 5
+        price_obj = prod["items"][0]["price"]
+        newprod["price"] = price_obj["regular"] - price_obj["promo"]
+        newprod["price_formatted"] = '${:,.2f}'.format(newprod["price"])
 
         id = id + 1
         products.append(newprod)
