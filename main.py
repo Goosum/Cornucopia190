@@ -27,7 +27,10 @@ app.secret_key = 'supersecretkey'
 def home():
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
-    return render_template('home.html', products=products)
+    username = "Guest"
+    if session.get("user"):
+        username = session.get("user")
+    return render_template('home.html', products=products, username = username)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -83,6 +86,7 @@ def login():
             encoded = bytes(data["pass"], 'utf-8')
             hash = bytes(row[0], 'utf-8')
             if bcrypt.checkpw(encoded, hash):
+                session["user"] = username
                 return "ok"
             else:
                 return "wrong credentials"
