@@ -8,7 +8,7 @@ import mariadb
 import sys
 import bcrypt
 
-
+import kroger
   
 # creates a Flask application 
 app = Flask(__name__) 
@@ -16,16 +16,21 @@ app.secret_key = 'supersecretkey'
 
 
 # Fake products to test
-products = [
-    {"id": 1, "name": "Apples", "price": 1.2},
-    {"id": 2, "name": "Bananas", "price": 0.5},
-    {"id": 3, "name": "Milk", "price": 2.0},
-    {"id": 4, "name": "Bread", "price": 1.5},
-]
+#products = [
+#    {"id": 1, "name": "Apples", "price": 1.2},
+#    {"id": 2, "name": "Bananas", "price": 0.5},
+#    {"id": 3, "name": "Milk", "price": 2.0},
+#    {"id": 4, "name": "Bread", "price": 1.5},
+#]
 
 @app.route('/')
 def home():
-    return render_template('home.html', products=products)
+    token = kroger.get_auth_token()
+    products = kroger.get_hot_products(token)
+    username = "Guest"
+    if session.get("user"):
+        username = session.get("user")
+    return render_template('home.html', products=products, username = username)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -43,6 +48,8 @@ def profile():
 @app.route('/cart')
 def cart():
     cart = session.get('cart', {})
+    token = kroger.get_auth_token()
+    products = kroger.get_hot_products(token)
     cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
     tax = subtotal * 0.0863
@@ -79,6 +86,7 @@ def login():
             encoded = bytes(data["pass"], 'utf-8')
             hash = bytes(row[0], 'utf-8')
             if bcrypt.checkpw(encoded, hash):
+                session["user"] = username
                 return "ok"
             else:
                 return "wrong credentials"
