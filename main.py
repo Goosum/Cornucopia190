@@ -127,7 +127,9 @@ def register():
         
         #row = cur.fetchone()
 
-        
+@app.route("/search")
+def searchProducts():
+    return render_template('search.html')    
         
 def dbconnect():
     # Connect to MariaDB Platform
