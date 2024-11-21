@@ -35,6 +35,7 @@ def home():
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = str(request.json['product_id'])
+    print(product_id)
     cart = session.get('cart', {})
     cart[product_id] = cart.get(product_id, 0) + 1
     session['cart'] = cart
@@ -50,6 +51,10 @@ def cart():
     cart = session.get('cart', {})
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
+    
+    for id in cart:
+        print(id)
+    
     cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
     tax = subtotal * 0.0863
