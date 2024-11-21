@@ -35,7 +35,6 @@ def get_products(filter, auth_token):
     bearer = "Bearer " + auth_token
     headers = {"Authorization": bearer}
     x = requests.get(products_url, headers = headers, params = filter) 
-    print(x.json())
     products = []
     for prod in x.json()["data"]:
         newprod = filter_json(prod)
@@ -46,7 +45,10 @@ def get_products(filter, auth_token):
 def filter_json(prod):
     newprod = {}
     newprod["name"] = prod["description"]
-    newprod["image"] = prod["images"][1]["sizes"][1]["url"]
+    try:
+        newprod["image"] = prod["images"][0]["sizes"][0]["url"]
+    except:
+        newprod["image"] = "https://platform.foodi-menus.com/static/media/placeholder_food.91ea4630.png"
     newprod["id"] = prod["upc"]
     price_obj = prod["items"][0]["price"]
     newprod["price"] = price_obj["regular"] - price_obj["promo"]
