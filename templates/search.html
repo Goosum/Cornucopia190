@@ -9,12 +9,29 @@
       <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
       <style>
-        .product-card {
-          width: 8rem;
-          border-style: solid;
-          border-width: medium;
-          border-color: black;
+        
+        .carousel > .carousel-inner > .carousel-item {
+          height:10rem;
         }
+        .product-card-carousel {
+          height:9rem;
+          width:9rem;
+          border-color: black;
+          border-width: 2px;
+          border-style: solid;
+        }
+        .product-img-carousel {
+          height: 6rem;
+          width: 6rem;
+        }
+        .carousel-control {
+          width: 50px;
+        }
+        .center-inner-carousel {
+          width: calc(100% - 100px);
+          margin: 0 auto;
+        }
+
       </style>
 
   </head>
@@ -50,20 +67,24 @@
           </div>
     </nav>
     <div id="productCarousel" class="carousel slide bg-primary">
-      <div class="carousel-inner" style="margin-left:9rem">
+      <div class="carousel-inner center-inner-carousel">
         <div class="carousel-item active">
-          <div class="row container">
-            <div class="col card product-card">
-              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success">Add to Cart</button>
+          <div class="row container" style="align-items:center">
+            <div class="col card product-card-carousel">
+              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success btn-sm">Add to Cart</button>
             </div>
-            <div class="col card product-card">
-              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success">Add to Cart</button>
+            <div class="col card product-card-carousel">
+              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success btn-sm">Add to Cart</button>
             </div>
-            <div class="col card product-card">
-              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success">Add to Cart</button>
+            <div class="col card product-card-carousel">
+              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success btn-sm">Add to Cart</button>
+            </div>
+            <div class="col card product-card-carousel">
+              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success btn-sm">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -71,12 +92,10 @@
           <h1>Slide 2</h1>
         </div>
       </div>
-      <a href="#productCarousel" class="carousel-control-prev" role="button" data-bs-slide="prev">
-        <span class="sr-only">Previous</span>
+      <a href="#productCarousel" class="carousel-control-prev carousel-control" role="button" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
       </a>
-      <a href="#productCarousel" class="carousel-control-next" role="button" data-bs-slide="next">
-        <span class="sr-only">Next</span>
+      <a href="#productCarousel" class="carousel-control-next carousel-control" role="button" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
       </a>
     </div>
