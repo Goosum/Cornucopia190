@@ -10,6 +10,16 @@
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
       <style>
         
+        /* Navbar */
+        .navbar {
+          background-color: #4a5b2a;
+          /* Olive green */
+        }
+
+        .navbar .nav-link {
+          color: #ffffff !important;
+        }
+
         .carousel > .carousel-inner > .carousel-item {
           height:10rem;
         }
@@ -36,55 +46,51 @@
 
   </head>
   <body>
-    <nav class="navbar navbar-expand-sm bg-primary sticky-top rounded m-3" data-bs-theme="dark">
-          <div class="container-xxl d-flex align-items-center">
-              <div class="logo-container d-flex align-items-center">
-                  <a href="{{ url_for('home') }}">
-                      <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" 
-                           style="width: 65px; height: 65px; margin-right: 10px;">
-                  </a>
-                  <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;">
-                      Cornucopia
-                  </span>
-              </div>
-
-              <div class="navbar-nav">
-                  <a class="nav-link text-light" href="#">Home</a>
-                  <a class="nav-link text-light" href="#">Browse</a>
-              </div>
-
-              <form class="d-flex ms-auto" role="search">
-                  <input class="form-control me-2" type="search" placeholder="Search" id="search-input" oninput="filterProducts()">
-                  <button class="btn btn-dark" type="submit">Search</button>
-              </form>
-
-              <a href="{{ url_for('profile') }}" class="ms-3 text-light">
-                  <i class="fas fa-user"></i> Profile
-              </a>
-              <a href="{{ url_for('cart') }}" class="ms-3 text-light">
-                  <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
-              </a>
-          </div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
+      <div class="container-xxl d-flex align-items-center">
+        <div class="logo-container d-flex align-items-center">
+          <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" style="width: 65px; height: 65px; margin-right: 10px;">
+          </a>
+          <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;"> Cornucopia </span>
+        </div>
+        <div class="navbar-nav">
+          <a class="nav-link" href="#">Home</a>
+          <a class="nav-link" href="#">Browse</a>
+        </div>
+        <!-- Search and Filter Section -->
+        <form class="d-flex ms-auto search-container" role="search" id="search-form">
+          <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
+          <button id="searchbutton" class="btn btn-dark" type="submit">Search</button>
+        </form>
+        <!-- Profile and Cart Links -->
+        <a href="{{ url_for('profile') }}" class="ms-3 text-light">
+          <i class="fas fa-user"></i> Welcome, {{ username }}
+        </a>
+        <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+          <i class="fas fa-shopping-cart"></i> 🛒 ( <span id="cart-counter">{{ session.get('cart_total', 0) }}</span>) </a>
+      </div>
     </nav>
-    <div id="productCarousel" class="carousel slide bg-primary">
+    <div id="productCarousel" class="carousel slide" style="background-color:#4a5b2a;">
       <div class="carousel-inner center-inner-carousel">
         <div class="carousel-item active">
           <div class="row container" style="align-items:center">
             <div class="col card product-card-carousel">
               <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success btn-sm">Add to Cart</button>
+              <button class="btn btn-dark btn-sm">Add to Cart</button>
             </div>
             <div class="col card product-card-carousel">
               <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success btn-sm">Add to Cart</button>
+              <button class="btn btn-dark btn-sm">Add to Cart</button>
             </div>
             <div class="col card product-card-carousel">
               <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success btn-sm">Add to Cart</button>
+              <button class="btn btn-dark btn-sm">Add to Cart</button>
             </div>
             <div class="col card product-card-carousel">
               <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success btn-sm">Add to Cart</button>
+              <button class="btn btn-dark btn-sm">Add to Cart</button>
             </div>
           </div>
         </div>
