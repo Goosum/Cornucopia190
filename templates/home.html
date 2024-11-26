@@ -180,6 +180,58 @@
             </a>
         </div>
     </nav>
+    <style>
+        .hover-effect {
+            text-align: center;
+            transition: transform 0.3s ease; /* Smooth scaling effect for the parent */
+        }
+    
+        .hover-effect:hover {
+            transform: scale(1.2); /* Scale both image and text together */
+        }
+    
+        .hover-effect img {
+            max-width: 80px; /* Default image size */
+            height: auto; /* Maintain aspect ratio */
+        }
+    
+        .hover-effect p {
+            font-size: 14px; /* Smaller text size */
+            margin-top: 8px;
+        }
+    </style>
+    
+    <section class="container text-center mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-2 hover-effect">
+                <img src="{{ url_for('static', filename='images/bakery.png') }}" alt="Bakery">
+                <p>Bakery</p>
+            </div>
+            <div class="col-md-2 hover-effect">
+                <img src="{{ url_for('static', filename='images/dairy.png') }}" alt="Dairy">
+                <p>Dairy</p>
+            </div>
+            <div class="col-md-2 hover-effect">
+                <img src="{{ url_for('static', filename='images/meat.png') }}" alt="Meat">
+                <p>Meat</p>
+            </div>
+            <div class="col-md-2 hover-effect">
+                <img src="{{ url_for('static', filename='images/seafood.png') }}" alt="Seafood">
+                <p>Seafood</p>
+            </div>
+            <div class="col-md-2 hover-effect">
+                <img src="{{ url_for('static', filename='images/fruit.png') }}" alt="Fruit">
+                <p>Fruit</p>
+            </div>
+            <div class="col-md-2 hover-effect">
+                <img src="{{ url_for('static', filename='images/vegetables.png') }}" alt="Vegetables">
+                <p>Vegetables</p>
+            </div>
+        </div>
+    </section>
+    
+    
+    
 
     <!-- Main Content Area -->
     <div class="container mt-4">
@@ -191,7 +243,7 @@
             {% for product in products %}
             <div class="col-md-4 product" data-category="{{ product.category }}">
                 <div class="card">
-				    <img class="product-image" src="{{ product.image }}">
+                    <img class="product-image" src="{{ product.image }}">
                     <h3 class="product-name">{{ product.name }}</h3>
                     <p class="product-price">Price: {{ product.price_formatted }}</p>
                     <button class="btn btn-success" onclick="addToCart('{{product.id}}')">Add to Cart</button>
@@ -213,4 +265,3 @@
 
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
-</html>
