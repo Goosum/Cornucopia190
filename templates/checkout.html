@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .checkout-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .checkout-card {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .totals {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align items to the right */
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .totals p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        form label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        form input,
+        form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #45a049;
+        }
+
+        .navbar {
+            background-color: #4a5b2a; /* Olive green */
+        }
+
+        .navbar .nav-link {
+            color: #ffffff !important;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
+        <div class="container-xxl d-flex align-items-center">
+            <div class="logo-container d-flex align-items-center">
+                <a href="{{ url_for('home') }}">
+                    <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" 
+                         style="width: 65px; height: 65px; margin-right: 10px;">
+                </a>
+                <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;">
+                    Cornucopia
+                </span>
+            </div>
+    
+            <div class="navbar-nav">
+                <a class="nav-link text-light" href="{{ url_for('home') }}">Home</a>
+                <a class="nav-link text-light" href="{{ url_for('cart') }}">Cart</a>
+            </div>
+    
+            <form class="d-flex ms-auto search-container" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
+                <button class="btn btn-dark" type="submit">Search</button>
+            </form>
+    
+            <a href="{{ url_for('profile') }}" class="ms-3 text-light">
+                <i class="fas fa-user"></i> Welcome, {{ username }}
+            </a>
+            <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+                <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
+            </a>
+        </div>
+    </nav>
+
+    <h1 style="text-align: center; margin-top: 20px;">Checkout</h1>
+    <div class="checkout-container">
+        <div class="checkout-card">
+            <h2>Order Summary</h2>
+            <ul style="list-style-type: none; padding: 0;">
+                {% for item in cart %}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>{{ item.name }} (x{{ item.quantity }})</span>
+                    <span>${{ "%.2f" | format(item.price * item.quantity) }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div class="totals">
+                <p>Subtotal: ${{ "%.2f" | format(subtotal) }}</p>
+                <p>Tax: ${{ "%.2f" | format(tax) }}</p>
+                <p>Total: ${{ "%.2f" | format(total) }}</p>
+            </div>
+        </div>
+
+
+        <div class="checkout-card">
+            <h2>Billing Information</h2>
+<form action="{{ url_for('process_checkout') }}" method="post">
+    <label for="name">Full Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="number">Card Number:</label>
+    <input 
+        type="text" 
+        id="number" 
+        name="number" 
+        maxlength="16" 
+        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);" 
+        required 
+        placeholder="Enter 16-digit card number" 
+        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label for="cvc">CVC:</label>
+            <input 
+                type="number" 
+                id="cvc" 
+                name="cvc" 
+                maxlength="3" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);" 
+                required 
+                placeholder="3 digits" 
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        <div style="flex: 1;">
+            <label for="exp">Expiration Date:</label>
+            <input 
+                type="text" 
+                id="exp" 
+                name="exp" 
+                maxlength="5" 
+                oninput="this.value = this.value.replace(/[^0-9\/]/g, '').slice(0, 5);" 
+                required 
+                placeholder="MM/YY" 
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <button type="submit" style="margin-top: 20px;">Complete Order</button>
+</form>
+
+            <h2>Shipping Information</h2>
+            <form action="{{ url_for('process_checkout') }}" method="post">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="street">Street:</label>
+                <input type="text" id="street" name="street" required>
+                
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" required>
+
+                <label for="state">State:</label>
+                <input type="text" id="state" name="state" required>
+
+                <label for="zip">Zip Code:</label>
+                <input type="text" id="zip" name="zip" required>
+
+                <button type="submit">Complete Order</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

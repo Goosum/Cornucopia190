@@ -13,30 +13,42 @@ def get_auth_token():
     return x.json()["access_token"]
 
 def get_hot_products(auth_token):
-    filter = {"filter.term": "Kroger", "filter.limit": "5"}
+    filter = {"filter.term": "Kroger", "filter.limit": "5", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
     
-def search_product(term, auth_token):
-    filter = {"filter.term": term, "filter.limit": "5"}
+def search_product(term, auth_token):  #todo change location later
+    filter = {"filter.term": term, "filter.limit": "5", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
 
-def get_products(filter, auth_token):
-    products_url = "https://api.kroger.com/v1/products"
+def get_product(id, auth_token):
+    products_url = "https://api.kroger.com/v1/products/" + id
     bearer = "Bearer " + auth_token
     headers = {"Authorization": bearer}
+    filter = {"filter.locationId": "01100002"}
     x = requests.get(products_url, headers = headers, params = filter)
     return filter_json(x.json())
 
-def filter_json(json):
+def get_products(filter, auth_token):
+    products_url = "https://api.kroger.com/v1/products/"
+    bearer = "Bearer " + auth_token
+    headers = {"Authorization": bearer}
+    x = requests.get(products_url, headers = headers, params = filter) 
     products = []
-    id = 0
-    for prod in json["data"]:
-        newprod = {}
-        newprod["name"] = prod["description"]
-        newprod["image"] = prod["images"][1]["sizes"][1]["url"]
-        newprod["id"] = id
-        newprod["price"] = 5
-
-        id = id + 1
+    for prod in x.json()["data"]:
+        newprod = filter_json(prod)
         products.append(newprod)
     return products
+
+
+def filter_json(prod):
+    newprod = {}
+    newprod["name"] = prod["description"]
+    try:
+        newprod["image"] = prod["images"][0]["sizes"][0]["url"]
+    except:
+        newprod["image"] = "https://platform.foodi-menus.com/static/media/placeholder_food.91ea4630.png"
+    newprod["id"] = prod["upc"]
+    price_obj = prod["items"][0]["price"]
+    newprod["price"] = price_obj["regular"] - price_obj["promo"]
+    newprod["price_formatted"] = '${:,.2f}'.format(newprod["price"])
+    return newprod

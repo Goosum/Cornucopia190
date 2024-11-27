@@ -27,11 +27,15 @@ app.secret_key = 'supersecretkey'
 def home():
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
-    return render_template('home.html', products=products)
+    username = "Guest"
+    if session.get("user"):
+        username = session.get("user")
+    return render_template('home.html', products=products, username = username)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = str(request.json['product_id'])
+    print(product_id)
     cart = session.get('cart', {})
     cart[product_id] = cart.get(product_id, 0) + 1
     session['cart'] = cart
@@ -47,6 +51,10 @@ def cart():
     cart = session.get('cart', {})
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
+    
+    for id in cart:
+        print(id)
+    
     cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
     tax = subtotal * 0.0863
@@ -81,6 +89,7 @@ def login():
             encoded = bytes(data["pass"], 'utf-8')
             hash = bytes(row[0], 'utf-8')
             if bcrypt.checkpw(encoded, hash):
+                session["user"] = username
                 return "ok"
             else:
                 return "wrong credentials"
@@ -137,7 +146,9 @@ def register():
         
         #row = cur.fetchone()
 
-        
+@app.route("/search")
+def searchProducts():
+    return render_template('search.html')    
         
 def dbconnect():
     # Connect to MariaDB Platform

@@ -1,216 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Cornucopia</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
     <style>
-        /* General Styles */
-        body {
-            background-color: #ffffff; /* White background */
-            color: #2e7d32; /* Dark green text */
-            font-family: Arial, sans-serif;
-        }
+      /* General Styles */
+      body {
+        background-color: #ffffff;
+        /* White background */
+        color: #2e7d32;
+        /* Dark green text */
+        font-family: Arial, sans-serif;
+      }
 
-        /* Navbar */
-        .navbar {
-            background-color: #4a5b2a; /* Olive green */
-        }
+      /* Navbar */
+      .navbar {
+        background-color: #4a5b2a;
+        /* Olive green */
+      }
 
-        .navbar .nav-link {
-            color: #ffffff !important;
-        }
+      .navbar .nav-link {
+        color: #ffffff !important;
+      }
 
-        /* Search and Filter */
-        .search-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-		
-		.product-image {
-		    max-height:100%; 
-			max-width:100%; 
-		}
+      /* Search and Filter */
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
 
-        .search-container input[type="search"] {
-            width: 250px;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #4a5b2a;
-        }
+      .product-image {
+        max-height: 100%;
+        max-width: 100%;
+      }
 
-        .search-container .filter-dropdown {
-            background-color: #66bb6a; /* Light green for dropdown */
-            color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 12px;
-            font-size: 14px;
-            cursor: pointer;
-        }
+      .search-container input[type="search"] {
+        width: 250px;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #4a5b2a;
+      }
 
-        /* Dropdown Styles */
-        .dropdown-menu {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #4a5b2a;
-            background-color: #ffffff;
-        }
+      .search-container .filter-dropdown {
+        background-color: #66bb6a;
+        /* Light green for dropdown */
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 12px;
+        font-size: 14px;
+        cursor: pointer;
+      }
 
-        .dropdown-item {
-            color: #2e7d32;
-        }
+      /* Dropdown Styles */
+      .dropdown-menu {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #4a5b2a;
+        background-color: #ffffff;
+      }
 
-        /* Product Cards */
-        .card {
-            border: 1px solid #4a5b2a;
-            background-color: #e8f5e9;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+      .dropdown-item {
+        color: #2e7d32;
+      }
 
-        /* Footer */
-        footer {
-            background-color: #4a5b2a;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-            border-top: 2px solid #2e7d32;
-        }
+      /* Product Cards */
+      .card {
+        border: 1px solid #4a5b2a;
+        background-color: #e8f5e9;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
 
-        footer p {
-            margin: 0;
-        }
+      /* Footer */
+      footer {
+        background-color: #4a5b2a;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+        border-top: 2px solid #2e7d32;
+      }
 
-        /* Button Styling */
-        .btn-success {
-            background-color: #66bb6a;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-        }
+      footer p {
+        margin: 0;
+      }
+
+      /* Button Styling */
+      .btn-success {
+        background-color: #66bb6a;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+      }
     </style>
-
     <script>
-        function addToCart(productId) {
-            fetch('/add_to_cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ product_id: productId })
-            })
-            .then(response => response.json())
-            .then(data => updateCartCounter(data.total_items))
-            .catch(error => console.error('Error:', error));
-        }
+      function addToCart(productId) {
+        fetch('/add_to_cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId
+          })
+        }).then(response => response.json()).then(data => updateCartCounter(data.total_items)).catch(error => console.error('Error:', error));
+      }
 
-        function updateCartCounter(totalItems) {
-            const cartCounter = document.getElementById('cart-counter');
-            cartCounter.textContent = totalItems;
-        }
+      function updateCartCounter(totalItems) {
+        const cartCounter = document.getElementById('cart-counter');
+        cartCounter.textContent = totalItems;
+      }
 
-        function filterProducts() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const selectedCategory = document.getElementById('filter-dropdown').value.toLowerCase();
-            const products = document.querySelectorAll('.product');
-
-            products.forEach(product => {
-                const productName = product.querySelector('.product-name').textContent.toLowerCase();
-                const productCategory = product.getAttribute('data-category').toLowerCase();
-                
-                // Display products that match the search query and selected category
-                product.style.display = (productName.includes(query) && (selectedCategory === 'all' || productCategory === selectedCategory)) ? 'block' : 'none';
-            });
-        }
+      function doSearch() {
+        console.log("doing search");
+        const query = document.getElementById('search-input').value.toLowerCase();
+        window.location.href = "search?term=" + query;
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
-        <div class="container-xxl d-flex align-items-center">
-            <div class="logo-container d-flex align-items-center">
-                <a href="{{ url_for('home') }}">
-                    <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" 
-                         style="width: 65px; height: 65px; margin-right: 10px;">
-                </a>
-                <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;">
-                    Cornucopia
-                </span>
-            </div>
-
-            <div class="navbar-nav">
-                <a class="nav-link" href="#">Home</a>
-                <a class="nav-link" href="#">Browse</a>
-            </div>
-
-            <!-- Search and Filter Section -->
-            <form class="d-flex ms-auto search-container" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" id="search-input" oninput="filterProducts()">
-                
-                <!-- Filter Dropdown -->
-                <select class="filter-dropdown" id="filter-dropdown" onchange="filterProducts()">
-                    <option value="all">All Categories</option>
-                    <option value="fruits">Fruits & Vegetables</option>
-                    <option value="dairy">Dairy & Eggs</option>
-                    <option value="meat">Meat & Seafood</option>
-                    <option value="beverages">Beverages</option>
-                    <option value="snacks">Snacks</option>
-                </select>
-                
-                <button class="btn btn-dark" type="submit">Search</button>
-            </form>
-
-            <!-- Profile and Cart Links -->
-            <a href="{{ url_for('profile') }}" class="ms-3 text-light">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <a href="{{ url_for('cart') }}" class="ms-3 text-light">
-                <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
-            </a>
+      <div class="container-xxl d-flex align-items-center">
+        <div class="logo-container d-flex align-items-center">
+          <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" style="width: 65px; height: 65px; margin-right: 10px;">
+          </a>
+          <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;"> Cornucopia </span>
         </div>
+        <div class="navbar-nav">
+          <a class="nav-link" href="#">Home</a>
+          <a class="nav-link" href="#">Browse</a>
+        </div>
+        <!-- Search and Filter Section -->
+        <form class="d-flex ms-auto search-container" role="search" id="search-form">
+          <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
+          <button id="searchbutton" class="btn btn-dark" type="submit">Search</button>
+        </form>
+        <!-- Profile and Cart Links -->
+        <a href="{{ url_for('profile') }}" class="ms-3 text-light">
+          <i class="fas fa-user"></i> Welcome, {{ username }}
+        </a>
+        <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+          <i class="fas fa-shopping-cart"></i> 🛒 ( <span id="cart-counter">{{ session.get('cart_total', 0) }}</span>) </a>
+      </div>
     </nav>
+    <style>
+      .hover-effect {
+        text-align: center;
+        transition: transform 0.3s ease;
+        /* Smooth scaling effect for the parent */
+      }
 
+      .hover-effect:hover {
+        transform: scale(1.2);
+        /* Scale both image and text together */
+      }
+
+      .hover-effect img {
+        max-width: 80px;
+        /* Default image size */
+        height: auto;
+        /* Maintain aspect ratio */
+      }
+
+      .hover-effect p {
+        font-size: 14px;
+        /* Smaller text size */
+        margin-top: 8px;
+      }
+    </style>
+    <section class="container text-center mt-4">
+      <div class="row justify-content-center">
+        <div class="col-md-2 hover-effect">
+          <img src="{{ url_for('static', filename='images/bakery.png') }}" alt="Bakery">
+          <p>Bakery</p>
+        </div>
+        <div class="col-md-2 hover-effect">
+          <img src="{{ url_for('static', filename='images/dairy.png') }}" alt="Dairy">
+          <p>Dairy</p>
+        </div>
+        <div class="col-md-2 hover-effect">
+          <img src="{{ url_for('static', filename='images/meat.png') }}" alt="Meat">
+          <p>Meat</p>
+        </div>
+        <div class="col-md-2 hover-effect">
+          <img src="{{ url_for('static', filename='images/seafood.png') }}" alt="Seafood">
+          <p>Seafood</p>
+        </div>
+        <div class="col-md-2 hover-effect">
+          <img src="{{ url_for('static', filename='images/fruit.png') }}" alt="Fruit">
+          <p>Fruit</p>
+        </div>
+        <div class="col-md-2 hover-effect">
+          <img src="{{ url_for('static', filename='images/vegetables.png') }}" alt="Vegetables">
+          <p>Vegetables</p>
+        </div>
+      </div>
+    </section>
     <!-- Main Content Area -->
     <div class="container mt-4">
-        <div class="text-center">
-            <h1 class="display-4">Products</h1>
-        </div>
-
-        <div class="row justify-content-center mt-4">
-            {% for product in products %}
-            <div class="col-md-4 product" data-category="{{ product.category }}">
-                <div class="card">
-				    <img class="product-image" src="{{ product.image }}">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                    <p class="product-price">Price: ${{ product.price }}</p>
-                    <button class="btn btn-success" onclick="addToCart({{ product.id }})">Add to Cart</button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+      <div class="text-center">
+        <h1 class="display-4">Products</h1>
+      </div>
+      <div class="row justify-content-center mt-4"> {% for product in products %} <div class="col-md-4 product" data-category="{{ product.category }}">
+          <div class="card">
+            <img class="product-image" src="{{ product.image }}">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-price">Price: {{ product.price_formatted }}</p>
+            <button class="btn btn-success" onclick="addToCart('{{product.id}}')">Add to Cart</button>
+          </div>
+        </div> {% endfor %} </div>
     </div>
-
     <!-- Footer -->
     <footer class="mt-5">
-        <p>&copy; 2024 Cornucopia. All Rights Reserved.</p>
-        <p>
-            <a href="#" style="color: #ffffff;">Privacy Policy</a> | 
-            <a href="#" style="color: #ffffff;">Terms of Service</a> | 
-            <a href="#" style="color: #ffffff;">Contact Us</a>
-        </p>
+      <p>&copy; 2024 Cornucopia. All Rights Reserved.</p>
+      <p>
+        <a href="#" style="color: #ffffff;">Privacy Policy</a> | <a href="#" style="color: #ffffff;">Terms of Service</a> | <a href="#" style="color: #ffffff;">Contact Us</a>
+      </p>
     </footer>
-
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-</body>
-</html>
+    <script>
+      // Add event listener to the form submission
+      document.getElementById("search-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from submitting the traditional way
+        doSearch(); // Call the search function
+      });
+
+      function doSearch() {
+        const query = document.getElementById('search-input').value.trim().toLowerCase();
+        if (query) {
+          window.location.href = "search?term=" + query; // Redirect to the search results page
+        }
+      }
+      // Optional: Trigger the search when the Enter key is pressed in the input field
+      document.getElementById("search-input").addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) { // Check if Enter key is pressed
+          event.preventDefault(); // Prevent form submission on Enter
+          document.getElementById("search-form").submit(); // Trigger form submit programmatically
+        }
+      });
+    </script>
+  </body>
