@@ -111,12 +111,15 @@
         }
 
         .buttons {
-            margin-top: auto;
+            display: flex; /* Use flexbox for layout */
+            justify-content: space-between; /* Evenly distribute buttons */
+            margin-top: auto; /* Push buttons to the bottom of the card */
+            gap: 10px; /* Add spacing between buttons */
         }
-
+        
         .buttons a {
-            display: inline-block;
-            margin: 10px 5px 0;
+            flex: 1; /* Make buttons equally sized */
+            margin: 0; /* Remove individual margins */
             padding: 10px 15px;
             background-color: #4caf50;
             color: white;
@@ -124,7 +127,7 @@
             border-radius: 5px;
             text-align: center;
         }
-
+        
         .buttons a:hover {
             background-color: #45a049;
         }
@@ -240,6 +243,7 @@
             <h2>Order Summary</h2>
             <div class="totals">
                 <p>Subtotal: <span id="subtotal">${{ "%.2f" | format(subtotal) }}</span></p>
+                <p>Discount: <span id="discount">$0.00</span></p>
                 <p>Tax (8.63%): <span id="tax">${{ "%.2f" | format(tax) }}</span></p>
                 <p>Total: <span id="total">${{ "%.2f" | format(total) }}</span></p>
             </div>
@@ -255,9 +259,7 @@
             <div class="buttons">
                 <a href="{{ url_for('home') }}">Continue Shopping</a>
                 <a href="{{ url_for('clear_cart') }}">Clear Cart</a>
-                <a href="{{ url_for('checkout') }}" style="background-color: #007bff; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; text-align: center;">
-                    Proceed to Checkout
-                </a>
+                <a href="{{ url_for('checkout') }}">Proceed to Checkout</a>
             </div>
         </div>
     </div>
@@ -285,9 +287,15 @@
                     if (response.ok) {
                         const data = await response.json();
     
+                        // Update totals on the right card
                         document.querySelector('#subtotal').textContent = `$${data.subtotal.toFixed(2)}`;
                         document.querySelector('#tax').textContent = `$${data.tax.toFixed(2)}`;
                         document.querySelector('#total').textContent = `$${data.total.toFixed(2)}`;
+    
+                        // Update the individual item's price on the left card
+                        const itemPriceElement = event.target.closest('.cart-item').querySelector('.cart-item-price p');
+                        const itemPrice = data.itemPrices[productId];
+                        itemPriceElement.textContent = `$${itemPrice.toFixed(2)}`;
                     } else {
                         alert('Error updating quantity.');
                     }
