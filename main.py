@@ -148,6 +148,11 @@ def register():
 
 @app.route("/search")
 def searchProducts():
+    token = kroger.get_auth_token()
+    products = kroger.search_product(token)
+    username = "Guest"
+    if session.get("user"):
+        username = session.get("user")
     return render_template('search.html')    
         
 def dbconnect():

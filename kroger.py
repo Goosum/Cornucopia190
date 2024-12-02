@@ -14,16 +14,21 @@ def get_auth_token():
     return x.json()["access_token"]
 
 def get_hot_products(auth_token):
-    #randomly select filter term to display
+    #initialize displayed products list
+    products = []
     filterlist = ["Kroger","Milk","Chicken","Cheese","Bread","Beef","Soda","Fruit","Vegetable"]
-    num = random.randint(1, len(filterlist))
-    filterterm = filterlist[num-1]
-    #set filter and pass info on to get products
-    filter = {"filter.term": filterterm, "filter.limit": "5", "filter.locationId": "01100002"}
-    return get_products(filter, auth_token)
+    #select 5 random products from preselected filter lists to be displayed
+    for x in range(5):
+        #randomly select filter term
+        num = random.randint(1, len(filterlist))
+        filterterm = filterlist[num-1]
+        #set filter term and pass on to get product information
+        filter = {"filter.term": filterterm, "filter.limit": "5", "filter.locationId": "01100002"}
+        products = get_hot_products_intermediary(filter, auth_token, products)
+    return products
     
 def search_product(term, auth_token):  #todo change location later
-    filter = {"filter.term": term, "filter.limit": "5", "filter.locationId": "01100002"}
+    filter = {"filter.term": term, "filter.limit": "6", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
 
 def get_product(id, auth_token):
@@ -45,6 +50,21 @@ def get_products(filter, auth_token):
         products.append(newprod)
     return products
 
+def get_hot_products_intermediary(filter, auth_token, products):
+    #api request
+    products_url = "https://api.kroger.com/v1/products/"
+    bearer = "Bearer " + auth_token
+    headers = {"Authorization": bearer}
+    x = requests.get(products_url, headers = headers, params = filter) 
+    #initialize list for trimmed json files
+    newprods = []
+    num2 = random.randint(1, 5)
+    for prod in x.json()["data"]:
+        newprod = filter_json(prod)
+        newprods.append(newprod)
+    #randomly select from filtered json files one product to be displayed
+    products.append(newprods[num2-1])
+    return products
 
 def filter_json(prod):
     newprod = {}
