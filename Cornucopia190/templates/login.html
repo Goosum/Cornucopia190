@@ -1,0 +1,38 @@
+<html>
+<h1> {{ header }} </h1>
+
+<form action="{{ redirect }}" method="post">
+  
+  <div class="container">
+    <label for="uname"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="user" required>
+
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="pass" required>
+
+    <button type="submit">Login</button>
+    <label>
+      <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+    <button type="button" onclick="push()">Click Me!</button>
+    <script>
+    function push(){
+      let result = confirm("Are you sure you want to proceed?");
+
+      if (result) {
+        // User clicked "OK" (Yes)
+        console.log("User clicked Yes");
+      } else {
+        // User clicked "Cancel" (No)
+        console.log("User clicked No"); 
+      }
+    }
+    </script>
+  </div>
+
+  <div class="container" style="background-color:#f1f1f1">
+    <button type="button" class="cancelbtn">Cancel</button>
+    <span class="psw"><a href="{{ otherurl }}">{{ otherpage }}</a></span>
+  </div>
+</form>
+</html>
