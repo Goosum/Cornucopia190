@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .checkout-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .checkout-card {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .totals {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .totals p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        form label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        form input,
+        form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #45a049;
+        }
+
+        .navbar {
+            background-color: #4a5b2a;
+        }
+
+        .navbar .nav-link {
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
+        <div class="container-xxl d-flex align-items-center">
+            <div class="logo-container d-flex align-items-center">
+                <a href="{{ url_for('home') }}">
+                    <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" 
+                         style="width: 65px; height: 65px; margin-right: 10px;">
+                </a>
+                <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;">
+                    Cornucopia
+                </span>
+            </div>
+    
+            <div class="navbar-nav">
+                <a class="nav-link text-light" href="{{ url_for('home') }}">Home</a>
+                <a class="nav-link text-light" href="{{ url_for('cart') }}">Cart</a>
+            </div>
+    
+            <form class="d-flex ms-auto search-container" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
+                <button class="btn btn-dark" type="submit">Search</button>
+            </form>
+    
+            <a href="{{ url_for('profile') }}" class="ms-3 text-light">
+                <i class="fas fa-user"></i> Welcome, {{ username }}
+            </a>
+            <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+                <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
+            </a>
+        </div>
+    </nav>
+
+    <h1 style="text-align: center; margin-top: 20px;">Checkout</h1>
+    <div class="checkout-container">
+        <div class="checkout-card">
+            <h2>Order Summary</h2>
+            <ul style="list-style-type: none; padding: 0;">
+                {% for item in cart %}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>{{ item.name }} (x{{ item.quantity }})</span>
+                    <span>${{ "%.2f" | format(item.price * item.quantity) }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        
+            <div class="totals">
+                <p>Subtotal: ${{ "%.2f" | format(subtotal) }}</p>
+                {% if coupon %}
+                <p>Coupon: "{{ coupon }}"</p>
+                <p>Discount: -${{ "%.2f" | format(discount) }}</p>
+                {% endif %}
+                <p>Tax: ${{ "%.2f" | format(tax) }}</p>
+                <p>Total: ${{ "%.2f" | format(total) }}</p>
+            </div>
+        </div>
+
+        <div class="checkout-card">
+            <h2>Billing Information</h2>
+            <form action="{{ url_for('process_checkout') }}" method="post">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="number">Card Number:</label>
+                <input type="text" id="number" name="number" maxlength="19" 
+                    oninput="formatCardNumber(this)" 
+                    required placeholder="Enter 16-digit card number" 
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+                <script>
+                    function formatCardNumber(input) {
+                        input.value = input.value.replace(/[^0-9]/g, '').replace(/(.{4})/g, '$1 ').trim();
+
+                        if (input.value.length > 19) {
+                            input.value = input.value.slice(0, 19);
+                        }
+                    }
+                </script>
+
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label for="cvc">CVC:</label>
+                        <input type="number" id="cvc" name="cvc" maxlength="3" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);" 
+                               required placeholder="3 digits">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="exp">Expiration Date:</label>
+                        <input type="text" id="exp" name="exp" maxlength="5" 
+                            oninput="formatExpirationDate(this)" 
+                            required placeholder="MM/YY" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+                        <script>
+                            function formatExpirationDate(input) {
+                                input.value = input.value.replace(/[^0-9]/g, '');
+
+                                if (input.value.length > 2 && !input.value.includes('/')) {
+                                    input.value = input.value.slice(0, 2) + '/' + input.value.slice(2);
+                                }
+
+                                if (input.value.length > 5) {
+                                    input.value = input.value.slice(0, 5);
+                                }
+                            }
+                        </script>
+                    </div>
+                </div>
+            </form>
+
+            <h2>Shipping Information</h2>
+            <form action="{{ url_for('process_checkout') }}" method="post">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="street">Street:</label>
+                <input type="text" id="street" name="street" required>
+                
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" required>
+
+                <label for="state">State:</label>
+                <select id="state" name="state" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="" disabled selected>Select your state</option>
+                    <option value="AL">AL - Alabama</option>
+                    <option value="AK">AK - Alaska</option>
+                    <option value="AZ">AZ - Arizona</option>
+                    <option value="AR">AR - Arkansas</option>
+                    <option value="CA">CA - California</option>
+                    <option value="CO">CO - Colorado</option>
+                    <option value="CT">CT - Connecticut</option>
+                    <option value="DE">DE - Delaware</option>
+                    <option value="FL">FL - Florida</option>
+                    <option value="GA">GA - Georgia</option>
+                    <option value="HI">HI - Hawaii</option>
+                    <option value="ID">ID - Idaho</option>
+                    <option value="IL">IL - Illinois</option>
+                    <option value="IN">IN - Indiana</option>
+                    <option value="IA">IA - Iowa</option>
+                    <option value="KS">KS - Kansas</option>
+                    <option value="KY">KY - Kentucky</option>
+                    <option value="LA">LA - Louisiana</option>
+                    <option value="ME">ME - Maine</option>
+                    <option value="MD">MD - Maryland</option>
+                    <option value="MA">MA - Massachusetts</option>
+                    <option value="MI">MI - Michigan</option>
+                    <option value="MN">MN - Minnesota</option>
+                    <option value="MS">MS - Mississippi</option>
+                    <option value="MO">MO - Missouri</option>
+                    <option value="MT">MT - Montana</option>
+                    <option value="NE">NE - Nebraska</option>
+                    <option value="NV">NV - Nevada</option>
+                    <option value="NH">NH - New Hampshire</option>
+                    <option value="NJ">NJ - New Jersey</option>
+                    <option value="NM">NM - New Mexico</option>
+                    <option value="NY">NY - New York</option>
+                    <option value="NC">NC - North Carolina</option>
+                    <option value="ND">ND - North Dakota</option>
+                    <option value="OH">OH - Ohio</option>
+                    <option value="OK">OK - Oklahoma</option>
+                    <option value="OR">OR - Oregon</option>
+                    <option value="PA">PA - Pennsylvania</option>
+                    <option value="RI">RI - Rhode Island</option>
+                    <option value="SC">SC - South Carolina</option>
+                    <option value="SD">SD - South Dakota</option>
+                    <option value="TN">TN - Tennessee</option>
+                    <option value="TX">TX - Texas</option>
+                    <option value="UT">UT - Utah</option>
+                    <option value="VT">VT - Vermont</option>
+                    <option value="VA">VA - Virginia</option>
+                    <option value="WA">WA - Washington</option>
+                    <option value="WV">WV - West Virginia</option>
+                    <option value="WI">WI - Wisconsin</option>
+                    <option value="WY">WY - Wyoming</option>
+                </select>
+
+                <label for="zip">Zip Code:</label>
+                <input type="text" id="zip" name="zip" maxlength="5" 
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);" 
+                       required>
+
+                <button type="submit">Complete Order</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
