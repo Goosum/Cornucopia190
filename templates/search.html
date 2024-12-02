@@ -68,7 +68,20 @@
           </div>
         </div>
         <div class="carousel-item">
-          <h1>Slide 2</h1>
+          <div class="row container">
+            <div class="col card product-card">
+              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success">Add to Cart</button>
+            </div>
+            <div class="col card product-card">
+              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success">Add to Cart</button>
+            </div>
+            <div class="col card product-card">
+              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+              <button class="btn btn-success">Add to Cart</button>
+            </div>
+          </div>
         </div>
       </div>
       <a href="#productCarousel" class="carousel-control-prev" role="button" data-bs-slide="prev">

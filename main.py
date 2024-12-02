@@ -22,6 +22,16 @@ def home():
     if session.get("user"):
         username = session.get("user")
     return render_template('home.html', products=products, username=username)
+ 
+@app.route('/search')
+def search():
+    token = kroger.get_auth_token()
+    products = kroger.search_product(request.args.get('term') ,token)
+    username = "Guest"
+    if session.get("user"):
+        username = session.get("user")
+    return render_template('search.html', products=products, username=username)    
+
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -175,13 +185,12 @@ def process_checkout():
     flash(f"Thank you, {name}! Your order has been placed successfully.", "success")
     return redirect(url_for('home'))
 
-@app.route("/login.html", methods=['GET', 'POST'])
+@app.route("/login.html", methods = ['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html', header="Log In", redirect="login.html", otherurl="register.html", otherpage="Register an Account")
     elif  request.method == 'POST':
         data = request.form
-        
         conn = dbconnect()
         cur = conn.cursor()
         
@@ -204,7 +213,15 @@ def login():
         else:
             return "user does not exist"
 
-@app.route("/register.html", methods=['GET', 'POST'])
+@app.route('/logout')
+def logout():
+    # clear the session data
+    session.pop('username', None)
+
+    # redirect to the login page
+    return redirect("home.html")
+
+@app.route("/register.html", methods = ['GET', 'POST'])
 def register():
     if request.method == 'GET':
         return render_template('login.html', header="Sign Up", redirect="register.html", otherurl="login.html", otherpage="Log in (Existing account)")
@@ -223,6 +240,7 @@ def register():
         salt = bcrypt.gensalt()
         salttxt = salt.decode("utf-8")
         
+        # hashing the password 
         hashed = bcrypt.hashpw(bytes, salt).decode("utf-8")
         
         query = f"INSERT INTO accounts VALUES('{username}','{hashed}', '{salttxt}')"
@@ -239,6 +257,7 @@ def register():
             return "ok"
         else:
             return "failure"
+
 
 def dbconnect():
     try:
