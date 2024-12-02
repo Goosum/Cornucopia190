@@ -22,6 +22,16 @@ def home():
     if session.get("user"):
         username = session.get("user")
     return render_template('home.html', products=products, username=username)
+    
+    
+@app.route('/search')
+def search():
+    token = kroger.get_auth_token()
+    products = kroger.search_product(request.args.get('term') ,token)
+    username = "Guest"
+    if session.get("user"):
+        username = session.get("user")
+    return render_template('search.html', products=products, username=username)    
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():

@@ -53,18 +53,12 @@
       <div class="carousel-inner" style="margin-left:9rem">
         <div class="carousel-item active">
           <div class="row container">
+		    {% for product in products %}
             <div class="col card product-card">
-              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success">Add to Cart</button>
+              <img src="{{ product.image }}">
+              <button class="btn btn-success" onclick="addToCart('{{product.id}}')">Add to Cart</button>
             </div>
-            <div class="col card product-card">
-              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success">Add to Cart</button>
-            </div>
-            <div class="col card product-card">
-              <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-success">Add to Cart</button>
-            </div>
+            {% endfor %} 
           </div>
         </div>
         <div class="carousel-item">
@@ -81,4 +75,29 @@
       </a>
     </div>
   </body>
+      <script>
+      function addToCart(productId) {
+        fetch('/add_to_cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId
+          })
+        }).then(response => response.json()).then(data => updateCartCounter(data.total_items)).catch(error => console.error('Error:', error));
+      }
+
+      function updateCartCounter(totalItems) {
+        const cartCounter = document.getElementById('cart-counter');
+        cartCounter.textContent = totalItems;
+      }
+
+      function doSearch() {
+        console.log("doing search");
+        const query = document.getElementById('search-input').value.toLowerCase();
+        window.location.href = "search?term=" + query;
+      }
+    </script>
+
 </html> 
