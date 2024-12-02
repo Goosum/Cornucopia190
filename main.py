@@ -104,6 +104,42 @@ def logout():
     # redirect to the login page
     return redirect("home.html")
 
+@app.route("/removeaccount.html", methods = ['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template('login.html', header="Sign Up", redirect="register.html", otherurl="login.html", otherpage="Log in (Existing account)")
+    elif  request.method == 'POST':
+        data = request.form
+        
+        #connect to database
+        conn = dbconnect()
+        cur = conn.cursor()
+        
+        #retrieve username and pw from user
+        username = data["user"]
+        pw = data["pass"]
+
+        #check username against database
+        query = f"SELECT password FROM accounts.accounts WHERE username='{username}'"
+        cur.execute(query)
+        
+        #fetch from database
+        row = cur.fetchone()
+        
+        #check pw against username
+        if row:
+            encoded = bytes(data["pass"], 'utf-8')
+            hash = bytes(row[0], 'utf-8')
+            if bcrypt.checkpw(encoded, hash):
+                #if correct, present confirmation button
+                #query = f"DELETE FROM accounts WHERE ('{username}','{hashed}', '{salttxt}')"
+                return "ok"
+                
+            else: #case: wrong pw
+                return "wrong credentials"
+        else: #case: username not in database
+            return "user does not exist"
+
 @app.route("/register.html", methods = ['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -160,9 +196,9 @@ def dbconnect():
     try:
         conn = mariadb.connect(
             user="root",
-            password="admin",
-            host="192.168.1.164",
-            port=3306,
+            password="wgKv9xRzZ8ycGaJ2hBMYE7",
+            host="74.108.167.235",
+            port=8790,
             database="accounts"
         )
         
