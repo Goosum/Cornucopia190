@@ -79,7 +79,7 @@
         </div>
         <div class="navbar-nav">
           <a class="nav-link" href="{{ url_for('home')}}">Home</a>
-          <a class="nav-link" href="{{ url_for('searchProducts') }}">Browse</a>
+          <a class="nav-link" href="{{ url_for('search') }}">Browse</a>
         </div>
         <!-- Search and Filter Section -->
         <form class="d-flex ms-auto search-container" role="search" id="search-form">
@@ -153,49 +153,41 @@
     <!-- Product List-->
 
     <div class="container">
-<!--    {% for product in products %} -->
-      <div class="row"> 
-        <div class="col-2 card free-product-f d-flex align-items-center justify-content-center">
-          <img style="height:7rem;width:7rem" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-          <button class="btn btn-dark btn-sm">Add to Cart</button>
+		{% for products in splitproducts %}
+      <div class="row">
+         {% for product in products %} 
+        <div class="col-2 card free-product d-flex align-items-center justify-content-center">
+          <img style="height:7rem;width:7rem" src="{{product.image}}">
+          <button class="btn btn-dark btn-sm" onclick="addToCart('{{product.id}}')">Add to Cart</button>
         </div>
+          {% endfor %}
       </div>
-<!--    {% endfor %} -->
+        {% endfor %} 
     </div>
-    <!-- Product Carousel Template
-    <div id="productCarousel" class="carousel slide" style="background-color:#4a5b2a;">
-      <div class="carousel-inner center-inner-carousel">
-        <div class="carousel-item active">
-          <div class="row container" style="align-items:center">
-            <div class="col card product-card-carousel">
-              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-dark btn-sm">Add to Cart</button>
-            </div>
-            <div class="col card product-card-carousel">
-              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-dark btn-sm">Add to Cart</button>
-            </div>
-            <div class="col card product-card-carousel">
-              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-dark btn-sm">Add to Cart</button>
-            </div>
-            <div class="col card product-card-carousel">
-              <img class="product-img-carousel" src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
-              <button class="btn btn-dark btn-sm">Add to Cart</button>
-            </div>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <h1>Slide 2</h1>
-        </div>
-      </div>
-      <a href="#productCarousel" class="carousel-control-prev carousel-control" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      </a>
-      <a href="#productCarousel" class="carousel-control-next carousel-control" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      </a>
-    </div>
-    -->
   </body>
-</html> 
+    <script>
+      function addToCart(productId) {
+        fetch('/add_to_cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId
+          })
+        }).then(response => response.json()).then(data => updateCartCounter(data.total_items)).catch(error => console.error('Error:', error));
+      }
+
+      function updateCartCounter(totalItems) {
+        const cartCounter = document.getElementById('cart-counter');
+        cartCounter.textContent = totalItems;
+      }
+
+      function doSearch() {
+        console.log("doing search");
+        const query = document.getElementById('search-input').value.toLowerCase();
+        window.location.href = "search?term=" + query;
+      }
+    </script>
+  </html>
+
