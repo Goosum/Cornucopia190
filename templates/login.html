@@ -36,6 +36,20 @@
     <label>
       <input type="checkbox" checked="checked" name="remember"> Remember me
     </label>
+    <button type="button" onclick="push()">Click Me!</button>
+    <script>
+    function push(){
+      let result = confirm("Are you sure you want to proceed?");
+
+      if (result) {
+        // User clicked "OK" (Yes)
+        console.log("User clicked Yes");
+      } else {
+        // User clicked "Cancel" (No)
+        console.log("User clicked No"); 
+      }
+    }
+    </script>
   </div>
 =======
         .form-group label {
