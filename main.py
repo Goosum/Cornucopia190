@@ -15,6 +15,7 @@ app.secret_key = 'supersecretkey'
 
 
 @app.route('/')
+@app.route('/home')
 def home():
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
@@ -44,9 +45,13 @@ def add_to_cart():
     session['cart_total'] = sum(cart.values())
     return jsonify({'total_items': session['cart_total']})
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return redirect("login.html")
+    if session.get("user"):
+        username = session.get("user")
+        return render_template('profile.html', username = username)
+    else:
+        return redirect("login")
 
 @app.route('/cart')
 def cart():
@@ -186,10 +191,10 @@ def process_checkout():
     flash(f"Thank you, {name}! Your order has been placed successfully.", "success")
     return redirect(url_for('home'))
 
-@app.route("/login.html", methods = ['GET', 'POST'])
+@app.route("/login", methods = ['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template('login.html', header="Log In", redirect="login.html", otherurl="register.html", otherpage="Register an Account")
+        return render_template('login.html', header="Log In", redirect="login", otherurl="register", otherpage="Register an Account")
     elif  request.method == 'POST':
         data = request.form
         conn = dbconnect()
@@ -214,18 +219,18 @@ def login():
         else:
             return "user does not exist"
 
-@app.route('/logout')
+@app.route('/logout', methods = ['POST'])
 def logout():
     # clear the session data
-    session.pop('username', None)
+    session.clear()
 
     # redirect to the login page
-    return redirect("home.html")
+    return redirect("home")
 
-@app.route("/register.html", methods = ['GET', 'POST'])
+@app.route("/register", methods = ['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return render_template('login.html', header="Sign Up", redirect="register.html", otherurl="login.html", otherpage="Log in (Existing account)")
+        return render_template('login.html', header="Sign Up", redirect="register", otherurl="login", otherpage="Log in (Existing account)")
     elif  request.method == 'POST':
         data = request.form
         
@@ -264,7 +269,7 @@ def dbconnect():
     try:
         conn = mariadb.connect(
             user="root",
-            password="admin",
+            password="wgKv9xRzZ8ycGaJ2hBMYE7",
             host="192.168.1.164",
             port=3306,
             database="accounts"

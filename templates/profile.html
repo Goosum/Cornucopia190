@@ -3,14 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Cornucopia</title>
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .profile-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h2 {
+            text-align: center;
+            color: #16134d;
+            font-size: 1.5rem;
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .logout-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #043b0e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .logout-button:hover {
+            background-color: #66bb6a;
+        }
+    </style>
 </head>
 <body>
-    <h1>Create Account or Sign In</h1>
-    <form method="POST">
-        <label>Username: <input type="text" name="username" required></label><br>
-        <label>Password: <input type="password" name="password" required></label><br>
-        <button type="submit">Submit</button>
-    </form>
+    <div class="profile-container">
+        <h2>Welcome, {{ username }}</h2>
+        <div class="profile-info">
+            <p><strong>Email:</strong> {{ email }}</p>
+            <p><strong>Joined:</strong> {{ joined_date }}</p>
+        </div>
+        <form action="{{ url_for('logout') }}" method="POST">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
 </body>
 </html>
