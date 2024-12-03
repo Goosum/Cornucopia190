@@ -28,11 +28,10 @@ def home():
 def search():
     token = kroger.get_auth_token()
     products = kroger.search_product(request.args.get('term') ,token)
-    splitproducts = [products[i:i+3] for i in range(0,len(products),3)]
     username = "Guest"
     if session.get("user"):
         username = session.get("user")
-    return render_template('search.html', splitproducts=splitproducts, username=username)    
+    return render_template('search.html', products=products, username=username)    
 
 
 @app.route('/add_to_cart', methods=['POST'])

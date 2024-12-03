@@ -23,12 +23,12 @@ def get_hot_products(auth_token):
         num = random.randint(1, len(filterlist))
         filterterm = filterlist[num-1]
         #set filter term and pass on to get product information
-        filter = {"filter.term": filterterm, "filter.limit": "5", "filter.locationId": "01100002"}
+        filter = {"filter.term": filterterm, "filter.limit": "6", "filter.locationId": "01100002"}
         products = get_hot_products_intermediary(filter, auth_token, products)
     return products
     
 def search_product(term, auth_token):  #todo change location later
-    filter = {"filter.term": term, "filter.limit": "6", "filter.locationId": "01100002"}
+    filter = {"filter.term": term, "filter.limit": "30", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
 
 def get_product(id, auth_token):

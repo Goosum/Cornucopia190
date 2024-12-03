@@ -1,0 +1,14 @@
+Issues:
+1. Cart Counter
+2. No Products!
+
+
+Left to Do on filter(If time allows):
+1. Filters!
+2. Minor visual improvements
+3. Pages for search
+
+Product Page:
+1. Make UI (SIMPLE)
+2. Hookup to db
+3. add to cart

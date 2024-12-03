@@ -9,160 +9,319 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <style>
-      
-      /* Navbar */
-      .navbar {
-        background-color: #4a5b2a;
-        /* Olive green */
-      }
-
-      .navbar .nav-link {
-        color: #ffffff !important;
-      }
-
-      .carousel > .carousel-inner > .carousel-item {
-        height:10rem;
-      }
-      .product-card-carousel {
-        height:9rem;
-        width:9rem;
-        border-color: black;
-        border-width: 2px;
-        border-style: solid;
-      }
-      .product-img-carousel {
-        height: 6rem;
-        width: 6rem;
-      }
-      .carousel-control {
-        width: 50px;
-      }
-      .center-inner-carousel {
-        width: calc(100% - 100px);
-        margin: 0 auto;
-      }
-      .free-product {
-        height: 10rem;
-        border-style: solid;
-        border-color: black;
-        border-width: 2px;
-        margin: auto;
-      }
-      .free-product-l {
-        height: 10rem;
-        border-style: solid;
-        border-color: black;
-        border-width: 2px;
-        margin: 0px 0px 0px auto;
-      }
-      .free-product-f {
-        height: 10rem;
-        border-style: solid;
-        border-color: black;
-        border-width: 2px;
-        margin: 0px auto 0px 0px;
-      }
-
-    </style>
        
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #16134d;
+            padding: 10px 20px;
+        }
+
+        .navbar-brand img {
+            width: 85px;
+            height: 85px;
+            margin-right: 10px;
+        }
+
+        .navbar .search-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 10px;
+        }
+
+        .search-container input[type="search"] {
+            width: 500px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #16134d;
+        }
+
+        .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .cart-info img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .cart-info a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Sub-header */
+        .sub-header {
+            background-color: #f7f7f7;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .hover-effect {
+            text-align: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            width: 100px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            position: relative;
+        }
+
+        .hover-effect:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+            background-color: #e8f5e9;
+        }
+
+        .hover-line {
+            height: 3px;
+            width: 0;
+            background-color: #66bb6a;
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .hover-effect:hover .hover-line {
+            width: 100%;
+        }
+
+        .hover-effect img {
+            max-width: 50px;
+            margin-bottom: 5px;
+        }
+
+        .hover-effect p {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background-color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .welcome-section h2 {
+            font-size: 1.5rem;
+            color: #4a5b2a;
+            font-family: "Georgia", serif;
+        }
+
+        /* Products Section */
+        .products-wrapper {
+            background-color: white;
+            padding: 20px 0;
+        }
+
+        .products-container-wrapper {
+            overflow: visible;
+            padding: 0 20px;
+        }
+
+        .products-row {
+            position: relative;
+            max-width: 90%;
+            margin: 0 auto;
+            overflow: visible;
+            padding: 20px 0;
+        }
+
+        .products-container {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: visible;
+            scroll-behavior: smooth;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .product-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            width: 180px;
+            height: 230px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 8px 15px rgba(0, 128, 0, 0.4);
+            border-color: #66bb6a;
+        }
+
+        .product-card img {
+            max-width: 90%;
+            max-height: 100px;
+            margin: 0 auto;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+
+        .product-card h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-card p {
+            font-size: 13px;
+            color: #333;
+            margin: 0;
+        }
+
+        .product-card button {
+            background-color: #043b0e;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .product-card button:hover {
+            background-color: #66bb6a;
+        }
+
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            width: 50px;
+            height: 125px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .scroll-arrow:hover {
+            box-shadow: 0 4px 8px 2px #66bb6a;
+        }
+
+        .scroll-arrow.left-arrow {
+            left: 95px;
+        }
+
+        .scroll-arrow.right-arrow {
+            right: 95px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #07024d;
+            color: #ffffff;
+            padding: 45px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
-      <div class="container-xxl d-flex align-items-center">
-        <div class="logo-container d-flex align-items-center">
-          <a href="{{ url_for('home') }}">
-            <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" style="width: 65px; height: 65px; margin-right: 10px;">
-          </a>
-          <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;"> Cornucopia </span>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo">
+                <span>Cornucopia</span>
+            </a>
+            <form class="d-flex ms-auto search-container" action="{{ url_for('search') }}" method="get">
+                <input class="form-control me-2" type="search" name="term" placeholder="Search" aria-label="Search">
+                <button class="btn btn-dark" type="submit">Search</button>
+            </form>
+            <div class="ms-3">
+                <a href="{{ url_for('profile') }}" class="text-light me-3">Login</a>
+                <a href="{{ url_for('cart') }}" class="text-light">
+                    <img src="{{ url_for('static', filename='cart.png') }}" alt="Cart">
+                    ({{ session.get('cart_total', 0) }})
+                </a>
+            </div>
         </div>
-        <div class="navbar-nav">
-          <a class="nav-link" href="{{ url_for('home')}}">Home</a>
-          <a class="nav-link" href="{{ url_for('search') }}">Browse</a>
-        </div>
-        <!-- Search and Filter Section -->
-        <form class="d-flex ms-auto search-container" role="search" id="search-form">
-          <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
-          <button id="searchbutton" class="btn btn-dark" type="submit">Search</button>
-        </form>
-        <!-- Profile and Cart Links -->
-        <a href="{{ url_for('profile') }}" class="ms-3 text-light">
-          <i class="fas fa-user"></i> Welcome, {{ username }}
-        </a>
-        <a href="{{ url_for('cart') }}" class="ms-3 text-light">
-          <i class="fas fa-shopping-cart"></i> 🛒 ( <span id="cart-counter">{{ session.get('cart_total', 0) }}</span>) </a>
-      </div>
     </nav>
-
-    <div>
+    <div style="margin-top:0.5rem">
       <form class="d-flex mx-auto" style="width:80%">
-        <button class="btn btn-sm border border-dark mx-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffCanvas"><i style="color:black" class="bi bi-filter"></i></button>
-        <input class="form-control border border-dark ms-auto" style="width:85%;border-radius: 0.4rem 0% 0% 0.4rem" placeholder="Search">
-        <button class="btn btn-dark" style="border-radius: 0% 0.4rem 0.4rem 0%" type="button">Search</button>
+        <button class="btn btn-sm border border-dark mx-auto" type="button" data-bs-toggle="collapse" data-bs-target="#brandFilter"><i style="color:black" class="bi bi-filter"></i></button>
+        <input class="form-control border border-dark ms-auto" style="width:85%;border-radius: 0.4rem 0% 0% 0.4rem" placeholder="Search Term" type="search" name="term">
+        <button class="btn btn-dark" style="border-radius: 0% 0.4rem 0.4rem 0%" type="submit">Search</button>
       </form>
     </div>
 
-    <!--OffCanvas Filter Body-->
-    <div class="offcanvas offcanvas-start" tab-index="-1" id="filterOffCanvas">
-      <div class="offcanvas-header">
-        <h4 class="offcanvas-title">Filters</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-      </div>
-      <div class="offcanvas-body">
-        <h6>Departments</h6>
-        <div class="form-check">
-          <input class="form-check-input border border-dark" type="checkbox">
-          <label class="form-check-label">
-            Bakery
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input border border-dark" type="checkbox">
-          <label class="form-check-label">
-            Dairy
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input border border-dark" type="checkbox">
-          <label class="form-check-label">
-            Meat
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input border border-dark" type="checkbox">
-          <label class="form-check-label">
-            Seafood
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input border border-dark" type="checkbox">
-          <label class="form-check-label">
-            Fruit
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input border border-dark" type="checkbox">
-          <label class="form-check-label">
-            Vegetables
-          </label>
-        </div>
-         
-      </div>
+    <div class="collapse mx-auto" id="brandFilter">
+      <form action="{{ url_for('search') }}" method="get">
+        <input class="form-control border border-dark mx-auto" style="width:70%" placeholder="Brand" type="search" name="brand">
+      </form>
     </div>
-    <!-- Product List-->
 
+    <!-- Product List-->
+    {% set pc = namespace(value=0) %}
     <div class="container">
-		{% for products in splitproducts %}
+   	 {% for i in range(5) %}
       <div class="row">
-         {% for product in products %} 
-        <div class="col-2 card free-product d-flex align-items-center justify-content-center">
-          <img style="height:7rem;width:7rem" src="{{product.image}}">
-          <button class="btn btn-dark btn-sm" onclick="addToCart('{{product.id}}')">Add to Cart</button>
-        </div>
+         {% for i in range(6) %} 
+         {% if products[pc.value] != null %}
+            <div class="product-card">
+                <img src="{{ products[pc.value].image }}" alt="{{ products[pc.value].name }}">
+                <h3>{{ products[pc.value].name }}</h3>
+                <p>${{ products[pc.value].price }}</p>
+                <button onclick="addToCart('{{ products[pc.value].id }}')">Add to Cart</button>
+            </div>
+          {% set pc.value = pc.value + 1 %}
+          {% endif %}
           {% endfor %}
       </div>
-        {% endfor %} 
+     {% endfor %}
     </div>
   </body>
     <script>
@@ -188,6 +347,8 @@
         const query = document.getElementById('search-input').value.toLowerCase();
         window.location.href = "search?term=" + query;
       }
+      
+      
     </script>
   </html>
 
