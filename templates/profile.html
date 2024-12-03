@@ -3,14 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Cornucopia</title>
+    <title>Login - Cornucopia</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+    <style>
+        body {
+            background-color: #16134d; /* Cornucopia green */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .logo-title-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .logo-title-container img {
+            width: 120px; /* Bigger logo */
+            height: auto;
+        }
+
+        .logo-title-container h1 {
+            font-size: 32px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow effect for the title */
+            margin: 10px 0 0 0;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff; /* White background */
+            border: 2px solid #000; /* Black border */
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Elevated shadow */
+            padding: 30px;
+            text-align: center;
+            margin-top: 100px; /* Space below the title/logo */
+        }
+
+        .login-container h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .login-container label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .login-container .remember-me-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Align checkbox to the right */
+            gap: 5px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .login-container button {
+            background-color: #003366; /* Navy blue for login button */
+            color: #ffffff;
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background-color: #001f4d; /* Darker navy blue on hover */
+        }
+
+        .login-container a {
+            color: #003366;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Create Account or Sign In</h1>
-    <form method="POST">
-        <label>Username: <input type="text" name="username" required></label><br>
-        <label>Password: <input type="password" name="password" required></label><br>
-        <button type="submit">Submit</button>
-    </form>
+    <!-- Logo and Title -->
+    <div class="logo-title-container">
+        <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo">
+        <h1>Cornucopia</h1>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <h1>{{ header }}</h1>
+        <form action="{{ redirect }}" method="post">
+            <label for="uname">Username:</label>
+            <input type="text" id="uname" name="user" placeholder="Enter your username" required>
+
+            <label for="psw">Password:</label>
+            <input type="password" id="psw" name="pass" placeholder="Enter your password" required>
+
+            <div class="remember-me-container">
+                <label for="remember">Remember me</label>
+                <input type="checkbox" id="remember" name="remember" checked>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p><a href="{{ otherurl }}">{{ otherpage }}</a></p>
+    </div>
 </body>
 </html>
