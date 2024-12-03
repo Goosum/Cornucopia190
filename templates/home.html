@@ -235,11 +235,11 @@
         }
 
         .scroll-arrow.left-arrow {
-            left: 95px;
+            left: -20px;
         }
 
         .scroll-arrow.right-arrow {
-            right: 95px;
+            right: -20px;
         }
 
         /* Footer */
@@ -279,9 +279,9 @@
             </form>
             <div class="ms-3">
                 <a href="{{ url_for('profile') }}" class="text-light me-3">Welcome, {{username}}</a>
-                <a href="{{ url_for('cart') }}" class="text-light">
-                    <img src="{{ url_for('static', filename='cart.png') }}" alt="Cart">
-                    <span id="cart-counter">({{ session.get('cart_total', 0) }})</span>
+                <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+                    <i class="fas fa-shopping-cart"></i> 🛒 (<span id="cart-counter">{{ session.get('cart_total', 0) }}</span>)
+                    
                 </a>
             </div>
         </div>
@@ -326,27 +326,26 @@
         <h2>Welcome to the universe of Cornucopia, now dive in and get shopping!</h2>
     </div>
 
-    <!-- Products Section -->
     <div class="products-wrapper">
         <div class="products-container-wrapper">
-            {% for i in range(3) %} <!-- Create 3 rows -->
+            {% for row in products %}
             <div class="products-row">
-                <div class="scroll-arrow left-arrow" onclick="scrollLeft({{ i }})">&#10094;</div>
                 <div class="products-container">
-                    {% for product in products %}
+                    {% for product in row %}
                     <div class="product-card">
                         <img src="{{ product.image }}" alt="{{ product.name }}">
                         <h3>{{ product.name }}</h3>
-                        <p>${{ product.price }}</p>
+                        <p>{{ product.price_formatted }}</p>
                         <button onclick="addToCart('{{ product.id }}')">Add to Cart</button>
                     </div>
                     {% endfor %}
                 </div>
-                <div class="scroll-arrow right-arrow" onclick="scrollRight({{ i }})">&#10095;</div>
             </div>
             {% endfor %}
         </div>
     </div>
+    
+    
 
     <!-- Footer -->
     <footer>
@@ -368,7 +367,9 @@
             const container = document.querySelectorAll('.products-container')[row];
             container.scrollBy({ left: 200, behavior: 'smooth' });
         }
-		function addToCart(productId) {
+    </script>
+    <script>
+      function addToCart(productId) {
         fetch('/add_to_cart', {
           method: 'POST',
           headers: {
@@ -390,6 +391,13 @@
         const query = document.getElementById('search-input').value.toLowerCase();
         window.location.href = "search?term=" + query;
       }
+      
+	  function filterCategory(x) {
+        console.log("doing search");
+        window.location.href = "search?term=" + x;
+      }
+      
     </script>
+
 </body>
 </html>

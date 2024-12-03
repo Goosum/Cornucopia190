@@ -14,25 +14,28 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
 
+
 @app.route('/')
 @app.route('/home')
 def home():
     token = kroger.get_auth_token()
-    products = kroger.get_hot_products(token)
-    username = "Guest"
-    if session.get("user"):
-        username = session.get("user")
-    return render_template('home.html', products=products, username=username)
+    all_products = kroger.get_hot_products(token)
+
+    # Split products into rows of 6 each
+    rows = [all_products[i] for i in range(len(all_products))]
+    print(rows)
+    
+    username = session.get("user", "Guest")
+    return render_template('home.html', products=rows, username=username)
  
 @app.route('/search')
 def search():
     token = kroger.get_auth_token()
     products = kroger.search_product(request.args.get('term') ,token)
-    splitproducts = [products[i:i+3] for i in range(0,len(products),3)]
     username = "Guest"
     if session.get("user"):
         username = session.get("user")
-    return render_template('search.html', splitproducts=splitproducts, username=username)    
+    return render_template('search.html', products=products, username=username)    
 
 
 @app.route('/add_to_cart', methods=['POST'])
@@ -53,19 +56,75 @@ def profile():
     else:
         return redirect("login")
 
+@app.route("/remove_account", methods = ['GET', 'POST'])
+def remove_account():
+    if request.method == 'GET':
+        return render_template('login.html', header="Delete Account", redirect="remove_account", otherurl="register", otherpage="Login")
+    elif  request.method == 'POST':
+        data = request.form
+        
+        #connect to database
+        conn = dbconnect()
+        cur = conn.cursor()
+        
+        #retrieve username and pw from user
+        username = data["user"]
+        pw = data["pass"]
+
+        #check username against database
+        query = f"SELECT password FROM accounts.accounts WHERE username='{username}'"
+        cur.execute(query)
+        
+        #fetch from database
+        row = cur.fetchone()
+        
+        #check pw against username
+        if row:
+            encoded = bytes(data["pass"], 'utf-8')
+            hash = bytes(row[0], 'utf-8')
+            if bcrypt.checkpw(encoded, hash):
+                #if correct, present confirmation button
+                query = f"DELETE FROM accounts WHERE username='{username}'"
+                cur.execute(query)
+                conn.commit()
+
+                session.clear()
+                return redirect(url_for('home'))
+                
+            else: #case: wrong pw
+                return "wrong credentials"
+        else: #case: username not in database
+            return "user does not exist"
+
 @app.route('/cart')
 def cart():
     username = session.get('user', 'Guest') 
     cart = session.get('cart', {})
     token = kroger.get_auth_token()
-    products = kroger.get_hot_products(token)
+    
+    cart_items = []
+    
+    for item in cart:
+        newitem = {}
+        x = kroger.get_product(item, token)
+        newitem["name"] = x["name"]
+        newitem["price"] = x["price"]
+        newitem["price_formatted"] = x["price_formatted"]
+        newitem["image"] = x["image"]
+        newitem["quantity"] = cart[item]
+        cart_items.append(newitem)
+        
+    print(cart_items)
 
-    cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
+    subtotal_str = '${:,.2f}'.format(subtotal)
     tax = subtotal * 0.0863
+    tax_str = '${:,.2f}'.format(tax)
     total = subtotal + tax
+    total_str = '${:,.2f}'.format(total)
+    
 
-    return render_template('cart.html', cart=cart_items, subtotal=subtotal, tax=tax, total=total, username=username)
+    return render_template('cart.html', cart=cart_items, subtotal=subtotal_str, tax=tax_str, total=total_str, username=username)
 
 @app.route('/apply_coupon', methods=['POST'])
 def apply_coupon():
@@ -153,10 +212,19 @@ def checkout():
     username = session.get('user', 'Guest')
     cart = session.get('cart', {})
     token = kroger.get_auth_token()
-    products = kroger.get_hot_products(token)
 
     # Retrieve cart items with product details
-    cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
+    cart_items = []
+    
+    for item in cart:
+        newitem = {}
+        x = kroger.get_product(item, token)
+        newitem["name"] = x["name"]
+        newitem["price"] = x["price"]
+        newitem["price_formatted"] = x["price_formatted"]
+        newitem["image"] = x["image"]
+        newitem["quantity"] = cart[item]
+        cart_items.append(newitem)
 
     # Calculate subtotal, tax, and total
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
@@ -213,7 +281,7 @@ def login():
             hash = bytes(row[0], 'utf-8')
             if bcrypt.checkpw(encoded, hash):
                 session["user"] = username
-                return "ok"
+                return redirect("home")
             else:
                 return "wrong credentials"
         else:

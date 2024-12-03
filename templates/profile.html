@@ -7,26 +7,39 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <style>
         body {
-            background-color: #f7f7f7;
+            background-color: #16134d; /* Cornucopia Blue */
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
         }
 
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            width: 100px;
+        }
+
+        .logo-container h1 {
+            color: white;
+            font-size: 2rem;
+            margin-top: 10px;
+        }
+
         .profile-container {
             background-color: white;
-            border: 1px solid #ddd;
             border-radius: 10px;
             padding: 20px;
             max-width: 500px;
-            margin: 20px auto;
+            margin: 0 auto;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .profile-container h2 {
             text-align: center;
             color: #16134d;
-            font-size: 1.5rem;
         }
 
         .profile-info {
@@ -36,6 +49,7 @@
         .profile-info p {
             font-size: 16px;
             margin: 5px 0;
+            color: #16134d;
         }
 
         .logout-button {
@@ -46,7 +60,16 @@
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            text-align: center;
+        }
+		
+		.delete-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #b5020e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
         }
 
         .logout-button:hover {
@@ -55,6 +78,10 @@
     </style>
 </head>
 <body>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo">
+        <h1>Cornucopia</h1>
+    </div>
     <div class="profile-container">
         <h2>Welcome, {{ username }}</h2>
         <div class="profile-info">
@@ -63,6 +90,9 @@
         </div>
         <form action="{{ url_for('logout') }}" method="POST">
             <button type="submit" class="logout-button">Logout</button>
+        </form>
+		<form action="{{ url_for('remove_account') }}" method="GET">
+            <button type="submit" class="delete-button">Delete Account</button>
         </form>
     </div>
 </body>

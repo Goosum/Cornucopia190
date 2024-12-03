@@ -1,4 +1,3 @@
-
 import requests
 import random
 
@@ -10,25 +9,35 @@ def get_auth_token():
     auth_url = "https://api.kroger.com/v1/connect/oauth2/token"
     headers = {"Authorization": basic_token, "Content-Type": "application/x-www-form-urlencoded"}
     data = {"grant_type": "client_credentials", "scope": "product.compact"}
-    x = requests.post(auth_url, data = data, headers = headers)
+    x = requests.post(auth_url, data=data, headers=headers)
     return x.json()["access_token"]
 
 def get_hot_products(auth_token):
-    #initialize displayed products list
+    # Initialize variables
     products = []
-    filterlist = ["Kroger","Milk","Chicken","Cheese","Bread","Beef","Soda","Fruit","Vegetable"]
-    #select 5 random products from preselected filter lists to be displayed
-    for x in range(5):
-        #randomly select filter term
-        num = random.randint(1, len(filterlist))
-        filterterm = filterlist[num-1]
-        #set filter term and pass on to get product information
-        filter = {"filter.term": filterterm, "filter.limit": "5", "filter.locationId": "01100002"}
-        products = get_hot_products_intermediary(filter, auth_token, products)
+    unique_products = set()
+    filterlist = ["Kroger", "Milk", "Chicken", "Cheese", "Bread", "Beef", "Soda", "Fruit", "Vegetable"]
+
+    # Fetch 3 rows of 6 products each
+    for _ in range(3):  # 3 rows
+        row_products = []
+        for _ in range(6):  # Each row contains 6 products
+            while True:
+                filterterm = random.choice(filterlist)
+                filter = {"filter.term": filterterm, "filter.limit": "10", "filter.locationId": "01100002"}
+                product_candidates = get_products(filter, auth_token)
+
+                # Select a unique product
+                new_product = random.choice(product_candidates)
+                if new_product["id"] not in unique_products:
+                    row_products.append(new_product)
+                    unique_products.add(new_product["id"])
+                    break
+        products.append(row_products)
     return products
-    
-def search_product(term, auth_token):  #todo change location later
-    filter = {"filter.term": term, "filter.limit": "6", "filter.locationId": "01100002"}
+
+def search_product(term, auth_token):  # TODO: Change location later
+    filter = {"filter.term": term, "filter.limit": "30", "filter.locationId": "01100002"}
     return get_products(filter, auth_token)
 
 def get_product(id, auth_token):
@@ -36,34 +45,18 @@ def get_product(id, auth_token):
     bearer = "Bearer " + auth_token
     headers = {"Authorization": bearer}
     filter = {"filter.locationId": "01100002"}
-    x = requests.get(products_url, headers = headers, params = filter)
-    return filter_json(x.json())
+    x = requests.get(products_url, headers=headers, params=filter)
+    return filter_json(x.json()["data"])
 
 def get_products(filter, auth_token):
     products_url = "https://api.kroger.com/v1/products/"
     bearer = "Bearer " + auth_token
     headers = {"Authorization": bearer}
-    x = requests.get(products_url, headers = headers, params = filter) 
+    x = requests.get(products_url, headers=headers, params=filter)
     products = []
     for prod in x.json()["data"]:
         newprod = filter_json(prod)
         products.append(newprod)
-    return products
-
-def get_hot_products_intermediary(filter, auth_token, products):
-    #api request
-    products_url = "https://api.kroger.com/v1/products/"
-    bearer = "Bearer " + auth_token
-    headers = {"Authorization": bearer}
-    x = requests.get(products_url, headers = headers, params = filter) 
-    #initialize list for trimmed json files
-    newprods = []
-    num2 = random.randint(1, 5)
-    for prod in x.json()["data"]:
-        newprod = filter_json(prod)
-        newprods.append(newprod)
-    #randomly select from filtered json files one product to be displayed
-    products.append(newprods[num2-1])
     return products
 
 def filter_json(prod):
