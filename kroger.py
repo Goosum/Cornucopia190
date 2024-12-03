@@ -21,7 +21,7 @@ def get_hot_products(auth_token):
     # Fetch 3 rows of 6 products each
     for _ in range(3):  # 3 rows
         row_products = []
-        for _ in range(6):  # Each row contains 6 products
+        for _ in range(5):  # Each row contains 6 products
             while True:
                 filterterm = random.choice(filterlist)
                 filter = {"filter.term": filterterm, "filter.limit": "10", "filter.locationId": "01100002"}
@@ -67,7 +67,12 @@ def filter_json(prod):
     except:
         newprod["image"] = "https://platform.foodi-menus.com/static/media/placeholder_food.91ea4630.png"
     newprod["id"] = prod["upc"]
-    price_obj = prod["items"][0]["price"]
-    newprod["price"] = price_obj["regular"] - price_obj["promo"]
-    newprod["price_formatted"] = '${:,.2f}'.format(newprod["price"])
+    try:
+        price_obj = prod["items"][0]["price"]
+        newprod["price"] = price_obj["regular"] - price_obj["promo"]
+        newprod["price_formatted"] = '${:,.2f}'.format(newprod["price"])
+    except:
+        newprod["price"] = -1
+        newprod["price_formatted"] = "Out of Stock"
+    
     return newprod
