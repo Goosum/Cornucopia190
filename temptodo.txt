@@ -1,0 +1,7 @@
+Search Page todo list:
+1. Add a search bar at the top of the page (Done!)
+2. Add the filters button and collapse menu 
+  a. Add button and offcanvas (Done!)
+  b. Add contents (Done!)
+3. Finalize cards and repeat them throughout (Done!)
+4. Get everything ready for chris to hook it up to the database

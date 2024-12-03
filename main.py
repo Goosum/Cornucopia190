@@ -16,12 +16,12 @@ app.secret_key = 'supersecretkey'
 
 
 # Fake products to test
-#products = [
+#searchProducts = [
 #    {"id": 1, "name": "Apples", "price": 1.2},
 #    {"id": 2, "name": "Bananas", "price": 0.5},
 #    {"id": 3, "name": "Milk", "price": 2.0},
 #    {"id": 4, "name": "Bread", "price": 1.5},
-#]
+
 
 @app.route('/')
 def home():
@@ -142,6 +142,7 @@ def register():
 
 @app.route("/search")
 def searchProducts():
+#    products = searchProducts;
     return render_template('search.html')    
         
 def dbconnect():
