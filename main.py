@@ -33,6 +33,10 @@ def search():
         username = session.get("user")
     return render_template('search.html', products=products, username=username)    
 
+@app.route("/product")
+def product():
+  return render_template("product.html")
+
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():

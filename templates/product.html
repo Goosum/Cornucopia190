@@ -8,52 +8,138 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-      /* General Styles */
-      body {
-        background-color: #ffffff;
-        /* White background */
-        color: #2e7d32;
-        /* Dark green text */
-        font-family: Arial, sans-serif;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #727278;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-      /* Navbar */
-      .navbar {
-        background-color: #4a5b2a;
-        /* Olive green */
-      }
+        /* Navbar */
+        .navbar {
+            background-color: #16134d;
+            padding: 10px 20px;
+        }
 
-      .navbar .nav-link {
-        color: #ffffff !important;
-      }
+        .navbar-brand img {
+            width: 85px;
+            height: 85px;
+            margin-right: 10px;
+        }
+
+        .navbar .search-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 10px;
+        }
+
+        .search-container input[type="search"] {
+            width: 500px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #16134d;
+        }
+
+        .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .cart-info img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .cart-info a {
+            color: white;
+            text-decoration: none;
+            margin-top: auto;
+            margin-left: auto;
+        }
+
+        .product-display {
+           width: 18rem;
+           height: 18rem;
+           border-style: solid;
+           border-color: black;
+           border-width: 1px;
+           margin-right: 10rem;
+           justify-content: flex-start;
+        }
+        .display-container {
+          display: flex;
+          margin-left: auto;
+          margin-right: auto;
+          margin-top: 1rem;
+          background-color: #f7f7f7;
+          padding: 6rem;
+          border-style: solid;
+          border-color: black;
+          border-width: 2px;
+          border-radius: 1rem;
+        }
+        .product-info {
+          flex-direction: column;
+          align-items: flex-end;
+        }     
+        .add-button {
+          margin-top: 5rem;
+          width: 9rem;
+          height: 3rem;
+        }
+
+
     </style>
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
-      <div class="container-xxl d-flex align-items-center">
-        <div class="logo-container d-flex align-items-center">
-          <a href="{{ url_for('home') }}">
-            <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" style="width: 65px; height: 65px; margin-right: 10px;">
-          </a>
-          <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;"> Cornucopia </span>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo">
+                <span>Cornucopia</span>
+            </a>
+            <form class="d-flex ms-auto search-container" action="{{ url_for('search') }}" method="get">
+                <input class="form-control me-2" type="search" name="term" placeholder="Search" aria-label="Search">
+                <button class="btn btn-dark" type="submit">Search</button>
+            </form>
+            <div class="ms-3">
+                <a href="{{ url_for('profile') }}" class="text-light me-3">Login</a>
+                <a href="{{ url_for('cart') }}" class="text-light">
+                    <img src="{{ url_for('static', filename='cart.png') }}" alt="Cart">
+                    ({{ session.get('cart_total', 0) }})
+                </a>
+            </div>
         </div>
-        <div class="navbar-nav">
-          <a class="nav-link" href="#">Home</a>
-          <a class="nav-link" href="{{ url_for('searchProducts') }}">Browse</a>
-        </div>
-        <!-- Search and Filter Section -->
-        <form class="d-flex ms-auto search-container" role="search" id="search-form">
-          <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
-          <button id="searchbutton" class="btn btn-dark" type="submit">Search</button>
-        </form>
-        <!-- Profile and Cart Links -->
-        <a href="{{ url_for('profile') }}" class="ms-3 text-light">
-          <i class="fas fa-user"></i> Welcome, {{ username }}
-        </a>
-        <a href="{{ url_for('cart') }}" class="ms-3 text-light">
-          <i class="fas fa-shopping-cart"></i> 🛒 ( <span id="cart-counter">{{ session.get('cart_total', 0) }}</span>) </a>
-      </div>
     </nav>
+    <div class="display-container">
+      <div class="card product-display">
+        <img src="{{ url_for('static', filename='images/carouselplaceholder.png')}}">
+      </div>
+      <div class="product-info">
+        <h3>Title</h3>
+        <h5>Price<h5>
+        <button class="btn btn-dark add-button" type="button">Add to Cart</button>
+      </div>
+    </div>
+    <script>
+      function addToCart(productId) {
+        fetch('/add_to_cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId
+          })
+        }).then(response => response.json()).then(data => updateCartCounter(data.total_items)).catch(error => console.error('Error:', error));
+      }
+    </script>
+
   </body>
 </html>
