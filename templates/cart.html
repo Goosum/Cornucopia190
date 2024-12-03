@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        /* General Card Layout */
         .cart-container {
             display: flex;
             gap: 20px;
@@ -32,7 +31,6 @@
             flex: 1;
         }
 
-        /* Cart Item Styles */
         .cart-item {
             display: flex;
             align-items: center;
@@ -63,7 +61,6 @@
             text-align: right;
         }
 
-        /* Summary Styling */
         .totals {
             display: flex;
             flex-direction: column;
@@ -80,59 +77,58 @@
             font-weight: bold;
         }
 
-        /* Coupon Section */
-        .coupon-section label {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
+        .coupon-section form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
         }
-
+        
         .coupon-section input {
-            width: 100%;
+            flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            margin-bottom: 10px;
         }
-
+        
         .coupon-section button {
-            width: 100%;
+            padding: 10px 15px;
             background-color: #4caf50;
             color: white;
-            padding: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
         }
-
+        
         .coupon-section button:hover {
             background-color: #45a049;
         }
 
         .buttons {
-            display: flex; /* Use flexbox for layout */
-            justify-content: space-between; /* Evenly distribute buttons */
-            margin-top: auto; /* Push buttons to the bottom of the card */
-            gap: 10px; /* Add spacing between buttons */
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            gap: 10px;
         }
         
         .buttons a {
-            flex: 1; /* Make buttons equally sized */
-            margin: 0; /* Remove individual margins */
-            padding: 10px 15px;
+            flex: 1;
+            margin: 0;
+            padding: 7px 7px;
             background-color: #4caf50;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             text-align: center;
+            white-space: normal;
         }
         
         .buttons a:hover {
             background-color: #45a049;
         }
 
-        /* Flash Messages */
         .flash-message {
             padding: 10px;
             margin: 20px 0;
@@ -152,7 +148,7 @@
         }
 
         .navbar {
-            background-color: #4a5b2a; /* Olive green */
+            background-color: #4a5b2a;
         }
 
         .navbar .nav-link {
@@ -218,7 +214,7 @@
                          onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default.jpg') }}';">
                     <div class="cart-item-details">
                         <p>{{ item.name }}</p>
-                        <div style="display: flex; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
                             <label for="quantity-{{ item.id }}" style="margin-right: 10px;">Quantity:</label>
                             <input 
                                 type="number" 
@@ -229,6 +225,12 @@
                                 min="1" 
                                 data-product-id="{{ item.id }}"
                                 style="width: 60px; padding: 5px; border: 1px solid #ddd; border-radius: 5px; text-align: center;">
+                            <button 
+                                class="delete-button" 
+                                data-product-id="{{ item.id }}"
+                                style="padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                Delete
+                            </button>
                         </div>
                     </div>
                     <div class="cart-item-price">
@@ -243,16 +245,25 @@
             <h2>Order Summary</h2>
             <div class="totals">
                 <p>Subtotal: <span id="subtotal">${{ "%.2f" | format(subtotal) }}</span></p>
-                <p>Discount: <span id="discount">$0.00</span></p>
                 <p>Tax (8.63%): <span id="tax">${{ "%.2f" | format(tax) }}</span></p>
                 <p>Total: <span id="total">${{ "%.2f" | format(total) }}</span></p>
             </div>
 
-            <div class="coupon-section" style="margin-top: 40px;">
-                <form action="{{ url_for('apply_coupon') }}" method="post">
-                    <label for="coupon">Coupon Code:</label>
-                    <input type="text" id="coupon" name="coupon" placeholder="Enter your coupon">
-                    <button type="submit">Apply Coupon</button>
+            <div class="coupon-section" style="margin-top: 20px;">
+                <form method="post" style="display: flex; gap: 10px; align-items: center;">
+                    <label for="coupon" style="font-size: 16px; font-weight: bold;">Coupon Code:</label>
+                    <input 
+                        type="text" 
+                        id="coupon" 
+                        name="coupon" 
+                        placeholder="Enter your coupon" 
+                        style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 10px;">
+                    <button type="submit" style="padding: 10px; background-color: #4caf50; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                        Apply
+                    </button>
+                    <button type="button" style="padding: 10px; background-color: red; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                        Remove
+                    </button>
                 </form>
             </div>
 
@@ -271,36 +282,63 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const quantityInputs = document.querySelectorAll('.quantity-input');
-    
-            quantityInputs.forEach(input => {
+            document.querySelectorAll('.quantity-input').forEach(input => {
                 input.addEventListener('change', async (event) => {
                     const productId = event.target.getAttribute('data-product-id');
                     const newQuantity = event.target.value;
     
-                    const response = await fetch(`/update_quantity/${productId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ quantity: newQuantity })
-                    });
+                    try {
+                        const response = await fetch(`/update_quantity/${productId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ quantity: newQuantity }),
+                        });
     
-                    if (response.ok) {
-                        const data = await response.json();
-    
-                        // Update totals on the right card
-                        document.querySelector('#subtotal').textContent = `$${data.subtotal.toFixed(2)}`;
-                        document.querySelector('#tax').textContent = `$${data.tax.toFixed(2)}`;
-                        document.querySelector('#total').textContent = `$${data.total.toFixed(2)}`;
-    
-                        // Update the individual item's price on the left card
-                        const itemPriceElement = event.target.closest('.cart-item').querySelector('.cart-item-price p');
-                        const itemPrice = data.itemPrices[productId];
-                        itemPriceElement.textContent = `$${itemPrice.toFixed(2)}`;
-                    } else {
-                        alert('Error updating quantity.');
+                        if (response.ok) {
+                            const data = await response.json();
+                            updateCart(data, event.target.closest('.cart-item'), productId);
+                        } else {
+                            alert('Error updating quantity.');
+                        }
+                    } catch (error) {
+                        console.error('Fetch error:', error);
                     }
                 });
             });
+    
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const productId = event.target.getAttribute('data-product-id');
+    
+                    try {
+                        const response = await fetch(`/delete_item/${productId}`, {
+                            method: 'POST',
+                        });
+    
+                        if (response.ok) {
+                            const data = await response.json();
+                            const cartItem = event.target.closest('.cart-item');
+                            if (cartItem) cartItem.remove();
+                            updateCart(data);
+                        } else {
+                            alert('Error deleting item.');
+                        }
+                    } catch (error) {
+                        console.error('Fetch error:', error);
+                    }
+                });
+            });
+    
+            function updateCart(data, cartItem = null, productId = null) {
+                document.querySelector('#subtotal').textContent = `$${data.subtotal.toFixed(2)}`;
+                document.querySelector('#tax').textContent = `$${data.tax.toFixed(2)}`;
+                document.querySelector('#total').textContent = `$${data.total.toFixed(2)}`;
+    
+                if (cartItem && productId && data.itemPrices) {
+                    const itemPriceElement = cartItem.querySelector('.cart-item-price p');
+                    itemPriceElement.textContent = `$${data.itemPrices[productId].toFixed(2)}`;
+                }
+            }
         });
     </script>
 </body>

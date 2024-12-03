@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-        /* General Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -118,26 +117,22 @@
     <h1 style="text-align: center; margin-top: 20px;">Checkout</h1>
     <div class="checkout-container">
         <div class="checkout-card">
-            <h2>Order Summary</h2>
-            <ul style="list-style-type: none; padding: 0;">
-                {% for item in cart %}
-                <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span>{{ item.name }} (x{{ item.quantity }})</span>
-                    <span>${{ "%.2f" | format(item.price * item.quantity) }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-        
-            <div class="totals">
-                <p>Subtotal: ${{ "%.2f" | format(subtotal) }}</p>
-                {% if coupon %}
-                <p>Coupon: "{{ coupon }}"</p>
-                <p>Discount: -${{ "%.2f" | format(discount) }}</p>
-                {% endif %}
-                <p>Tax: ${{ "%.2f" | format(tax) }}</p>
-                <p>Total: ${{ "%.2f" | format(total) }}</p>
-            </div>
-        </div>
+    <h2>Order Summary</h2>
+    <ul style="list-style-type: none; padding: 0;">
+        {% for item in cart %}
+        <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>{{ item.name }} (x{{ item.quantity }})</span>
+            <span>${{ "%.2f" | format(item.price * item.quantity) }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="totals">
+        <p>Subtotal: ${{ "%.2f" | format(subtotal) }}</p>
+        <p>Tax: ${{ "%.2f" | format(tax) }}</p>
+        <p>Total: ${{ "%.2f" | format(total) }}</p>
+    </div>
+</div>
 
         <div class="checkout-card">
             <h2>Billing Information</h2>

@@ -22,17 +22,6 @@ def home():
     if session.get("user"):
         username = session.get("user")
     return render_template('home.html', products=products, username=username)
-    
-    
-@app.route('/search')
-def search():
-    token = kroger.get_auth_token()
-    products = kroger.search_product(request.args.get('term') ,token)
-    splitproducts = [products[x:x+3] for x in range(0, len(products),3)]
-    username = "Guest"
-    if session.get("user"):
-        username = session.get("user")
-    return render_template('search.html', splitproducts=splitproducts, username=username)    
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -62,85 +51,68 @@ def cart():
 
     return render_template('cart.html', cart=cart_items, subtotal=subtotal, tax=tax, total=total, username=username)
 
-@app.route('/apply_coupon', methods=['POST'])
-def apply_coupon():
-    data = request.get_json()
-    coupon = data.get('coupon', '').strip()
 
-    valid_coupons = {
-        "SAVE10": 10,  # $10 discount
-        "SAVE20": 20   # $20 discount
-    }
-
-    if coupon not in valid_coupons:
-        return jsonify({'error': 'Invalid coupon code'}), 400
-
-    discount = valid_coupons[coupon]
-
-    # Retrieve cart and product details
+    
+def recalculate_cart():
+    """Helper function to recalculate cart totals and item prices."""
     cart = session.get('cart', {})
-    if not isinstance(cart, dict):
-        return jsonify({'error': 'Cart is not in a valid format'}), 500
-
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
 
-    # Combine cart with product details
-    cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
+    cart_items = [
+        {**p, "quantity": cart[str(p["id"])]}
+        for p in products if str(p["id"]) in cart
+    ]
 
-    try:
-        subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
-        tax = subtotal * 0.0863
-        total = subtotal - discount + tax
+    subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
+    tax = subtotal * 0.0863
+    total = subtotal + tax
+    total = max(0, total)
 
-        if total < 0:
-            total = 0
+    item_prices = {str(p["id"]): p["price"] * cart[str(p["id"])] for p in products if str(p["id"]) in cart}
 
-        return jsonify({'discount': discount, 'total': total})
-    except KeyError as e:
-        return jsonify({'error': f'Missing key in cart item: {e}'}), 500
-    except Exception as e:
-        return jsonify({'error': f'An error occurred: {e}'}), 500
+    return jsonify({
+        'subtotal': subtotal,
+        'tax': tax,
+        'total': total,
+        'itemPrices': item_prices
+    })
     
 @app.route('/clear_cart')
 def clear_cart():
     session.pop('cart', None)
     session['cart_total'] = 0
-    session.pop('discount', None)  
     return redirect(url_for('home'))
 
 @app.route('/update_quantity/<product_id>', methods=['POST'])
 def update_quantity(product_id):
-    data = request.get_json()
-    new_quantity = int(data.get('quantity', 1))
-    cart = session.get('cart', {})
-
-    if product_id in cart:
-        if new_quantity > 0:
-            cart[product_id] = new_quantity
-        else:
-            cart.pop(product_id)
-
-    session['cart'] = cart
-
     try:
-        token = kroger.get_auth_token()
-        products = kroger.get_hot_products(token)
-        cart_items = [
-            {**p, "quantity": cart[str(p["id"])]}
-            for p in products if str(p["id"]) in cart
-        ]
-        subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
-        tax = subtotal * 0.0863
-        total = subtotal + tax
-        session['cart_total'] = sum(cart.values())
+        data = request.get_json()
+        new_quantity = int(data.get('quantity', 1))
+        cart = session.get('cart', {})
 
-        # Calculate prices for individual items
-        item_prices = {str(p["id"]): p["price"] * cart[str(p["id"])] for p in products if str(p["id"]) in cart}
+        if product_id in cart:
+            if new_quantity > 0:
+                cart[product_id] = new_quantity
+            else:
+                cart.pop(product_id)
 
-        return jsonify({'subtotal': subtotal, 'tax': tax, 'total': total, 'itemPrices': item_prices})
+        session['cart'] = cart
+        return recalculate_cart()
     except Exception as e:
         app.logger.error(f"Error updating quantity: {e}")
+        return jsonify({'error': 'An error occurred'}), 500
+
+@app.route('/delete_item/<product_id>', methods=['POST'])
+def delete_item(product_id):
+    try:
+        cart = session.get('cart', {})
+        if product_id in cart:
+            cart.pop(product_id)
+        session['cart'] = cart
+        return recalculate_cart()
+    except Exception as e:
+        app.logger.error(f"Error deleting item: {e}")
         return jsonify({'error': 'An error occurred'}), 500
 
 @app.route('/checkout')
@@ -150,27 +122,22 @@ def checkout():
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
 
-    # Retrieve cart items with product details
     cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
 
-    # Calculate subtotal, tax, and total
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
     tax = subtotal * 0.0863
-    discount = session.get('discount', 0)  # Get the discount from the session
-    total = subtotal - discount + tax
+    total = subtotal + tax
 
-    # Debug: Print values
     print(f"Cart items: {cart_items}")
-    print(f"Subtotal: {subtotal}, Discount: {discount}, Tax: {tax}, Total: {total}, Coupon: {session.get('coupon', None)}")
+    print(f"Subtotal: {subtotal}, Tax: {tax}, Total: {total}, Coupon: {session.get('coupon', None)}")
 
     return render_template(
         'checkout.html',
         cart=cart_items,
         subtotal=subtotal,
         tax=tax,
-        discount=discount,
         total=total,
-        coupon=session.get('coupon', None),  # Get the applied coupon
+        coupon=session.get('coupon', None),  
         username=username
     )
     
