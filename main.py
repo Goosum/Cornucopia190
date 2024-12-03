@@ -18,10 +18,9 @@ app.secret_key = 'supersecretkey'
 def home():
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
-    username = "Guest"
-    if session.get("user"):
-        username = session.get("user")
+    username = session.get("user", "Guest")
     return render_template('home.html', products=products, username=username)
+<<<<<<< Updated upstream
     
     
 @app.route('/search')
@@ -33,20 +32,9 @@ def search():
     if session.get("user"):
         username = session.get("user")
     return render_template('search.html', splitproducts=splitproducts, username=username)    
+=======
 
-@app.route('/add_to_cart', methods=['POST'])
-def add_to_cart():
-    product_id = str(request.json['product_id'])
-    print(product_id)
-    cart = session.get('cart', {})
-    cart[product_id] = cart.get(product_id, 0) + 1
-    session['cart'] = cart
-    session['cart_total'] = sum(cart.values())
-    return jsonify({'total_items': session['cart_total']})
-
-@app.route('/profile')
-def profile():
-    return redirect("login.html")
+>>>>>>> Stashed changes
 
 @app.route('/cart')
 def cart():
@@ -62,118 +50,75 @@ def cart():
 
     return render_template('cart.html', cart=cart_items, subtotal=subtotal, tax=tax, total=total, username=username)
 
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    product_id = str(request.json['product_id'])
+    cart = session.get('cart', {})
+    cart[product_id] = cart.get(product_id, 0) + 1
+    session['cart'] = cart
+    session['cart_total'] = sum(cart.values())
+    return jsonify({'total_items': session['cart_total']})
+
 @app.route('/apply_coupon', methods=['POST'])
 def apply_coupon():
-    data = request.get_json()
-    coupon = data.get('coupon', '').strip()
+    coupon = request.form.get('coupon')
+    if coupon == "SAVE10":
+        session['discount'] = 0.10  # 10% discount
+        flash("Coupon applied successfully! You saved 10%.", "success")
+    elif coupon == "SAVE20":
+        session['discount'] = 0.20  # 20% discount
+        flash("Coupon applied successfully! You saved 20%.", "success")
+    else:
+        session['discount'] = 0  # No discount
+        flash("Invalid coupon code.", "error")
+    return redirect(url_for('cart'))  # Redirect back to the cart page
 
-    valid_coupons = {
-        "SAVE10": 10,  # $10 discount
-        "SAVE20": 20   # $20 discount
-    }
-
-    if coupon not in valid_coupons:
-        return jsonify({'error': 'Invalid coupon code'}), 400
-
-    discount = valid_coupons[coupon]
-
-    # Retrieve cart and product details
-    cart = session.get('cart', {})
-    if not isinstance(cart, dict):
-        return jsonify({'error': 'Cart is not in a valid format'}), 500
-
-    token = kroger.get_auth_token()
-    products = kroger.get_hot_products(token)
-
-    # Combine cart with product details
-    cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
-
-    try:
-        subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
-        tax = subtotal * 0.0863
-        total = subtotal - discount + tax
-
-        if total < 0:
-            total = 0
-
-        return jsonify({'discount': discount, 'total': total})
-    except KeyError as e:
-        return jsonify({'error': f'Missing key in cart item: {e}'}), 500
-    except Exception as e:
-        return jsonify({'error': f'An error occurred: {e}'}), 500
-    
 @app.route('/clear_cart')
 def clear_cart():
     session.pop('cart', None)
     session['cart_total'] = 0
-    session.pop('discount', None)  
-    return redirect(url_for('home'))
+    return redirect(url_for('cart'))
 
-@app.route('/update_quantity/<product_id>', methods=['POST'])
-def update_quantity(product_id):
-    data = request.get_json()
-    new_quantity = int(data.get('quantity', 1))
-    cart = session.get('cart', {})
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = request.form.get('remember')
 
-    if product_id in cart:
-        if new_quantity > 0:
-            cart[product_id] = new_quantity
+        if validate_login(username, password):  # Validate user credentials
+            session["user"] = username
+            return redirect(url_for('home'))
         else:
-            cart.pop(product_id)
+            cart.pop(product_id)  
 
     session['cart'] = cart
 
-    try:
-        token = kroger.get_auth_token()
-        products = kroger.get_hot_products(token)
-        cart_items = [
-            {**p, "quantity": cart[str(p["id"])]}
-            for p in products if str(p["id"]) in cart
-        ]
-        subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
-        tax = subtotal * 0.0863
-        total = subtotal + tax
-        session['cart_total'] = sum(cart.values())
+    token = kroger.get_auth_token()
+    products = kroger.get_hot_products(token)
+    cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
+    subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
+    tax = subtotal * 0.0863
+    total = subtotal + tax
 
-        # Calculate prices for individual items
-        item_prices = {str(p["id"]): p["price"] * cart[str(p["id"])] for p in products if str(p["id"]) in cart}
+    session['cart_total'] = sum(cart.values())
 
-        return jsonify({'subtotal': subtotal, 'tax': tax, 'total': total, 'itemPrices': item_prices})
-    except Exception as e:
-        app.logger.error(f"Error updating quantity: {e}")
-        return jsonify({'error': 'An error occurred'}), 500
+    return jsonify({'subtotal': subtotal, 'tax': tax, 'total': total})
 
 @app.route('/checkout')
 def checkout():
-    username = session.get('user', 'Guest')
+    username = session.get('user', 'Guest')  
     cart = session.get('cart', {})
     token = kroger.get_auth_token()
     products = kroger.get_hot_products(token)
 
-    # Retrieve cart items with product details
     cart_items = [{**p, "quantity": cart[str(p["id"])]} for p in products if str(p["id"]) in cart]
-
-    # Calculate subtotal, tax, and total
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
     tax = subtotal * 0.0863
-    discount = session.get('discount', 0)  # Get the discount from the session
-    total = subtotal - discount + tax
+    total = subtotal + tax
 
-    # Debug: Print values
-    print(f"Cart items: {cart_items}")
-    print(f"Subtotal: {subtotal}, Discount: {discount}, Tax: {tax}, Total: {total}, Coupon: {session.get('coupon', None)}")
+    return render_template('checkout.html', cart=cart_items, subtotal=subtotal, tax=tax, total=total, username=username)
 
-    return render_template(
-        'checkout.html',
-        cart=cart_items,
-        subtotal=subtotal,
-        tax=tax,
-        discount=discount,
-        total=total,
-        coupon=session.get('coupon', None),  # Get the applied coupon
-        username=username
-    )
-    
 @app.route('/process_checkout', methods=['POST'])
 def process_checkout():
     name = request.form.get('name')
@@ -189,32 +134,33 @@ def process_checkout():
 @app.route("/login.html", methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template('login.html', header="Log In", redirect="login.html", otherurl="register.html", otherpage="Register an Account")
-    elif  request.method == 'POST':
+        return render_template('login.html', header="Log In", redirect="login", otherurl="register", otherpage="Register an Account")
+    elif request.method == 'POST':
         data = request.form
         
         conn = dbconnect()
         cur = conn.cursor()
-        
-        username = data["user"]
-        
-        query = f"SELECT password FROM accounts.accounts WHERE username='{username}'"
-        
-        cur.execute(query)
-        
-        row = cur.fetchone()
-        
-        if row:
-            encoded = bytes(data["pass"], 'utf-8')
-            hash = bytes(row[0], 'utf-8')
-            if bcrypt.checkpw(encoded, hash):
-                session["user"] = username
-                return "ok"
-            else:
-                return "wrong credentials"
-        else:
-            return "user does not exist"
 
+        username = data["user"]
+        query = "SELECT password FROM accounts.accounts WHERE username=%s"
+        cur.execute(query, (username,))
+
+        row = cur.fetchone()
+
+        if row:
+            encoded = data["pass"].encode('utf-8')
+            hashed = row[0].encode('utf-8')
+            if bcrypt.checkpw(encoded, hashed):
+                session["user"] = username
+                return redirect(url_for('home'))
+            else:
+                flash("Wrong credentials.", "error")
+                return redirect(url_for('login'))
+        else:
+            flash("User does not exist.", "error")
+            return redirect(url_for('login'))
+
+<<<<<<< Updated upstream
 @app.route("/register.html", methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -251,6 +197,44 @@ def register():
         else:
             return "failure"
 
+=======
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template('login.html', header="Sign Up", redirect="register", otherurl="login", otherpage="Log in (Existing account)")
+    elif request.method == 'POST':
+        data = request.form
+        conn = dbconnect()
+        cur = conn.cursor()
+
+        username = data["user"]
+        pw = data["pass"]
+
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(pw.encode('utf-8'), salt)
+
+        try:
+            query = "INSERT INTO accounts (username, password, salt) VALUES (%s, %s, %s)"
+            cur.execute(query, (username, hashed.decode('utf-8'), salt.decode('utf-8')))
+            conn.commit()
+            flash("Account created successfully.", "success")
+            return redirect(url_for('login'))
+        except mariadb.Error:
+            flash("Account already exists.", "error")
+            return redirect(url_for('register'))
+
+def validate_login(username, password):
+    """Validate user login credentials."""
+    conn = dbconnect()
+    cur = conn.cursor()
+    query = "SELECT password FROM accounts.accounts WHERE username=%s"
+    cur.execute(query, (username,))
+    row = cur.fetchone()
+    if row:
+        return bcrypt.checkpw(password.encode('utf-8'), row[0].encode('utf-8'))
+    return False
+
+>>>>>>> Stashed changes
 def dbconnect():
     try:
         conn = mariadb.connect(
@@ -266,5 +250,28 @@ def dbconnect():
 
     return conn
 
-if __name__ == "__main__": 
-    app.run(debug=True)
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query', '').lower()  # Get search query
+    category = request.args.get('category', 'all').lower()  # Get category filter
+
+    token = kroger.get_auth_token()
+    products = kroger.get_hot_products(token)
+
+    # Filter products based on the query and category
+    filtered_products = [
+        product for product in products 
+        if query in product['name'].lower() and (category == 'all' or category in product['category'].lower())
+    ]
+
+    # Handle no results
+    if not filtered_products:
+        flash("No products found for your search.", "info")
+    
+    return render_template('home.html', products=filtered_products, username=session.get("user", "Guest"))
+
+
+
+    if __name__ == "__main__":
+        app.run(debug=True, host="127.0.0.1", port=5000)
+
