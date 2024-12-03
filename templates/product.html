@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Cornucopia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+      /* General Styles */
+      body {
+        background-color: #ffffff;
+        /* White background */
+        color: #2e7d32;
+        /* Dark green text */
+        font-family: Arial, sans-serif;
+      }
+
+      /* Navbar */
+      .navbar {
+        background-color: #4a5b2a;
+        /* Olive green */
+      }
+
+      .navbar .nav-link {
+        color: #ffffff !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm sticky-top rounded m-3">
+      <div class="container-xxl d-flex align-items-center">
+        <div class="logo-container d-flex align-items-center">
+          <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='corn.png') }}" alt="Cornucopia Logo" style="width: 65px; height: 65px; margin-right: 10px;">
+          </a>
+          <span class="navbar-text text-light" style="font-size: 24px; font-weight: bold; margin-right: 20px;"> Cornucopia </span>
+        </div>
+        <div class="navbar-nav">
+          <a class="nav-link" href="#">Home</a>
+          <a class="nav-link" href="{{ url_for('searchProducts') }}">Browse</a>
+        </div>
+        <!-- Search and Filter Section -->
+        <form class="d-flex ms-auto search-container" role="search" id="search-form">
+          <input class="form-control me-2" type="search" placeholder="Search" id="search-input">
+          <button id="searchbutton" class="btn btn-dark" type="submit">Search</button>
+        </form>
+        <!-- Profile and Cart Links -->
+        <a href="{{ url_for('profile') }}" class="ms-3 text-light">
+          <i class="fas fa-user"></i> Welcome, {{ username }}
+        </a>
+        <a href="{{ url_for('cart') }}" class="ms-3 text-light">
+          <i class="fas fa-shopping-cart"></i> 🛒 ( <span id="cart-counter">{{ session.get('cart_total', 0) }}</span>) </a>
+      </div>
+    </nav>
+  </body>
+</html>

@@ -144,6 +144,10 @@ def register():
 def searchProducts():
 #    products = searchProducts;
     return render_template('search.html')    
+
+@app.route("/product")
+def productPage():
+  return render_template('product.html')
         
 def dbconnect():
     # Connect to MariaDB Platform
