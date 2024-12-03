@@ -278,10 +278,10 @@
                 <button class="btn btn-dark" type="submit">Search</button>
             </form>
             <div class="ms-3">
-                <a href="{{ url_for('profile') }}" class="text-light me-3">Login</a>
+                <a href="{{ url_for('profile') }}" class="text-light me-3">Welcome, {{username}}</a>
                 <a href="{{ url_for('cart') }}" class="text-light">
                     <img src="{{ url_for('static', filename='cart.png') }}" alt="Cart">
-                    ({{ session.get('cart_total', 0) }})
+                    <span id="cart-counter">({{ session.get('cart_total', 0) }})</span>
                 </a>
             </div>
         </div>
@@ -368,6 +368,28 @@
             const container = document.querySelectorAll('.products-container')[row];
             container.scrollBy({ left: 200, behavior: 'smooth' });
         }
+		function addToCart(productId) {
+        fetch('/add_to_cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            product_id: productId
+          })
+        }).then(response => response.json()).then(data => updateCartCounter(data.total_items)).catch(error => console.error('Error:', error));
+      }
+
+      function updateCartCounter(totalItems) {
+        const cartCounter = document.getElementById('cart-counter');
+        cartCounter.textContent = totalItems;
+      }
+
+      function doSearch() {
+        console.log("doing search");
+        const query = document.getElementById('search-input').value.toLowerCase();
+        window.location.href = "search?term=" + query;
+      }
     </script>
 </body>
 </html>
