@@ -315,7 +315,7 @@
                 <img src="{{ products[pc.value].image }}" alt="{{ products[pc.value].name }}">
                 <h3>{{ products[pc.value].name }}</h3>
                 <p>{{ products[pc.value].price_formatted }}</p>
-                <button onclick="addToCart('{{ products[pc.value].id }}')">Add to Cart</button>
+                <button onclick="addToCart('{{ products[pc.value].id }}')" {% if products[pc.value].price_formatted == "Out of Stock" %}disabled{%endif%}>Add to Cart</button>
             </div>
           {% set pc.value = pc.value + 1 %}
           {% endif %}
